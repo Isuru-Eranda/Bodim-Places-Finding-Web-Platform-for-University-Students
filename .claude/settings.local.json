@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node index.js)",
+      "Bash(Start-Sleep -Seconds 5)",
+      "Bash(Get-Content \"C:\\\\Users\\\\USER\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-USER-Documents-GitHub-Bodim-Places-Finding-Web-Platform-for-University-Students\\\\75279132-b826-4013-8eee-2f849a5f895f\\\\tasks\\\\bqg8tnbcl.output\" -ErrorAction SilentlyContinue)"
+    ]
+  }
+}
