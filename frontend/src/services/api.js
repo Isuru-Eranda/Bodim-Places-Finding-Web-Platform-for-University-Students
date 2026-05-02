@@ -25,7 +25,8 @@ export const loginUser = (data) => api.post('/auth/login', data);
 export const getMe = () => api.get('/auth/me');
 
 // Listings
-export const getListings = (params = {}) => api.get('/listings', { params });
+export const getListings = (params = {}, signal) => api.get('/listings', { params, signal });
+export const getListingById = (id) => api.get(`/listings/${id}`);
 
 export const getAIRecommendations = (data) => api.post('/ai/recommend', data);
 
