@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { MapPin, Star, Wifi, Car, UtensilsCrossed, ShieldCheck } from 'lucide-react';
 
 const FACILITY_ICONS = {
@@ -97,9 +98,12 @@ export default function ListingCard({ listing }) {
         )}
 
         {/* View Button */}
-        <button className="w-full py-2 text-sm font-medium text-orange-500 border border-orange-200 rounded-xl hover:bg-orange-50 transition-colors">
+        <Link
+          to={`/listings/${listing._id}`}
+          className="block w-full py-2 text-sm font-medium text-center text-orange-500 border border-orange-200 rounded-xl hover:bg-orange-50 transition-colors"
+        >
           View Details
-        </button>
+        </Link>
       </div>
     </div>
   );

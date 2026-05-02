@@ -19,8 +19,87 @@ export const createListing = async (req, res) => {
 
 export const getAllListings = async (req, res) => {
   try {
-    const listings = await Listing.find().populate("ownerId", "name email");
-    res.json(listings);
+    const {
+      search,
+      location,
+      minPrice,
+      maxPrice,
+      facilities,
+      isVerified,
+      sort = "newest",
+      page = 1,
+      limit = 12,
+    } = req.query;
+
+    const query = {};
+
+    // Text search across title and location
+    if (search) {
+      const searchCondition = {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { location: { $regex: search, $options: "i" } },
+        ],
+      };
+      // Combine search $or with location filter using $and to avoid field conflicts
+      if (location) {
+        query.$and = [
+          searchCondition,
+          { location: { $regex: location, $options: "i" } },
+        ];
+      } else {
+        query.$or = searchCondition.$or;
+      }
+    } else if (location) {
+      // Location filter only (no keyword search)
+      query.location = { $regex: location, $options: "i" };
+    }
+
+    // Price range
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // Facilities — must include ALL specified facilities
+    if (facilities) {
+      const facilityList = facilities.split(",").map((f) => f.trim()).filter(Boolean);
+      if (facilityList.length > 0) query.facilities = { $all: facilityList };
+    }
+
+    // Verified filter
+    if (isVerified === "true") {
+      query.isVerified = true;
+    }
+
+    const sortMap = {
+      newest: { createdAt: -1 },
+      oldest: { createdAt: 1 },
+      price_asc: { price: 1 },
+      price_desc: { price: -1 },
+    };
+    const sortOption = sortMap[sort] || sortMap.newest;
+
+    const pageNum = Math.max(1, Number(page));
+    const limitNum = Math.min(50, Math.max(1, Number(limit)));
+    const skip = (pageNum - 1) * limitNum;
+
+    const [listings, total] = await Promise.all([
+      Listing.find(query)
+        .populate("ownerId", "name email")
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limitNum),
+      Listing.countDocuments(query),
+    ]);
+
+    res.json({
+      data: listings,
+      total,
+      page: pageNum,
+      pages: Math.ceil(total / limitNum),
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,56 +1,182 @@
 # Bodim Places Finding Web Platform for University Students
 
-A comprehensive full-stack web application designed to help university students easily find, review, and book affordable boarding places ("Bodims"). The platform also features an AI-powered recommendation system to help match students with the most suitable accommodations.
+A comprehensive full-stack web application designed to help university students easily find, review, and book affordable boarding places ("Bodims") near their universities. The platform includes an AI-powered recommendation system, a full admin dashboard, and role-based access for students, property owners, and administrators.
 
 ## 🚀 Features
 
-- **User Authentication:** Secure registration and login for both students and landlords (JWT-based).
-- **Property Listings:** Landlords can add and manage boarding place listings.
-- **Smart Search & AI Recommendations:** Find the best places using OpenAI-powered search and recommendations.
-- **Booking System:** Students can seamlessly book available spaces.
-- **Rating & Reviews:** Integrated review system for students to rate their stay and share experiences.
+- **User Authentication:** Secure registration and login with role-based access control (JWT-based).
+- **User Roles:** Three roles — `student`, `owner`, and `admin` — each with distinct permissions.
+- **Property Listings:** Owners can create and manage boarding place listings with images, facilities, location, and pricing.
+- **Listing Verification:** Admins can verify listings before they are publicly visible.
+- **Smart AI Recommendations:** OpenAI-powered endpoint to match students with suitable accommodations.
+- **Booking System:** Students can book available spaces; admins can manage all bookings.
+- **Ratings & Reviews:** Students can add reviews for listings; admins can moderate them.
+- **Admin Dashboard:** Full analytics and management panel for users, listings, bookings, and reviews.
 
 ## 💻 Tech Stack
 
 ### Frontend
 
-- **Framework:** React (Vite)
-- **Styling:** Tailwind CSS
+| Technology       | Version |
+| ---------------- | ------- |
+| React            | ^19.2.5 |
+| React Router DOM | ^7.14.2 |
+| Vite             | ^8.0.10 |
+| Tailwind CSS     | ^3.4.19 |
+| Axios            | ^1.16.0 |
+| Lucide React     | ^1.14.0 |
 
 ### Backend
 
-- **Runtime:** Node.js
-- **Framework:** Express.js
-- **Database:** MongoDB (using Mongoose)
-- **AI Integration:** OpenAI API for intelligent features
-- **Authentication:** JWT (JSON Web Tokens) & bcryptjs
+| Technology         | Version |
+| ------------------ | ------- |
+| Node.js            | v16+    |
+| Express.js         | ^5.2.1  |
+| MongoDB / Mongoose | ^9.2.1  |
+| JSON Web Tokens    | ^9.0.3  |
+| bcryptjs           | ^3.0.3  |
+| OpenAI SDK         | ^6.35.0 |
+| dotenv             | ^17.3.1 |
 
 ## 📁 Project Structure
 
 ```
-├── backend/            # Express server, MongoDB models, controllers, and routes
-│   ├── config/         # Database configuration (db.js)
-│   ├── controllers/    # API logic (auth, listings, bookings, reviews, ai)
-│   ├── middleware/     # Custom middlewares (e.g., Auth protection)
-│   ├── models/         # Mongoose schemas (User, Listing, Booking, Review)
-│   ├── routes/         # Express API routes
-│   └── index.js        # Backend entry point
+├── package.json            # Root scripts to run both servers concurrently
 │
-└── frontend/           # React frontend (Vite)
-    ├── src/            # React components, styles, and assets
-    ├── public/         # Static frontend assets
-    └── vite.config.js  # Vite configuration
+├── backend/
+│   ├── index.js            # Express server entry point
+│   ├── seed.js             # Database seeding script
+│   ├── config/
+│   │   └── db.js           # MongoDB connection
+│   ├── controllers/        # Route handler logic
+│   │   ├── adminController.js
+│   │   ├── aiController.js
+│   │   ├── authController.js
+│   │   ├── bookingController.js
+│   │   ├── listingController.js
+│   │   └── reviewController.js
+│   ├── middleware/
+│   │   └── authMiddleware.js   # JWT protect & role authorize
+│   ├── models/
+│   │   ├── Booking.js
+│   │   ├── Listing.js
+│   │   ├── Review.js
+│   │   └── User.js
+│   └── routes/
+│       ├── admin.js
+│       ├── ai.js
+│       ├── auth.js
+│       ├── bookings.js
+│       ├── listings.js
+│       └── reviews.js
+│
+└── frontend/
+    ├── index.html
+    ├── vite.config.js
+    └── src/
+        ├── App.jsx
+        ├── main.jsx
+        ├── components/         # Reusable UI components
+        │   ├── FeatureBar.jsx
+        │   ├── Footer.jsx
+        │   ├── Hero.jsx
+        │   ├── ListingCard.jsx
+        │   ├── ListingsSection.jsx
+        │   ├── Navbar.jsx
+        │   ├── SearchBox.jsx
+        │   ├── StatsSection.jsx
+        │   └── Testimonials.jsx
+        ├── context/
+        │   └── AuthContext.jsx # Global auth state
+        ├── pages/
+        │   ├── Home.jsx
+        │   ├── Browse.jsx
+        │   ├── ListingDetails.jsx
+        │   ├── Login.jsx
+        │   ├── Register.jsx
+        │   └── admin/
+        │       ├── AdminDashboard.jsx
+        │       ├── AdminLayout.jsx
+        │       ├── AdminListings.jsx
+        │       ├── AdminBookings.jsx
+        │       ├── AdminReviews.jsx
+        │       └── AdminUsers.jsx
+        └── services/
+            └── api.js          # Axios API service layer
 ```
+
+## 🔑 User Roles
+
+| Role      | Permissions                                                           |
+| --------- | --------------------------------------------------------------------- |
+| `student` | Browse listings, make bookings, add reviews                           |
+| `owner`   | Create and manage their own listings                                  |
+| `admin`   | Full access: manage users, listings, bookings, reviews, and analytics |
+
+## 🌐 API Endpoints
+
+### Auth — `/api/auth`
+
+| Method | Endpoint    | Access    |
+| ------ | ----------- | --------- |
+| POST   | `/register` | Public    |
+| POST   | `/login`    | Public    |
+| GET    | `/me`       | Protected |
+
+### Listings — `/api/listings`
+
+| Method | Endpoint | Access       |
+| ------ | -------- | ------------ |
+| GET    | `/`      | Public       |
+| GET    | `/:id`   | Public       |
+| POST   | `/`      | Owner, Admin |
+| PUT    | `/:id`   | Owner, Admin |
+| DELETE | `/:id`   | Owner, Admin |
+
+### Bookings — `/api/bookings`
+
+| Method | Endpoint | Access         |
+| ------ | -------- | -------------- |
+| POST   | `/`      | Student, Admin |
+| GET    | `/my`    | Protected      |
+
+### Reviews — `/api/reviews`
+
+| Method | Endpoint      | Access    |
+| ------ | ------------- | --------- |
+| POST   | `/`           | Protected |
+| GET    | `/:listingId` | Public    |
+
+### AI — `/api/ai`
+
+| Method | Endpoint     | Access    |
+| ------ | ------------ | --------- |
+| POST   | `/recommend` | Protected |
+
+### Admin — `/api/admin`
+
+| Method | Endpoint               | Description           |
+| ------ | ---------------------- | --------------------- |
+| GET    | `/analytics`           | Platform stats        |
+| GET    | `/users`               | List all users        |
+| PUT    | `/users/:id/role`      | Update user role      |
+| DELETE | `/users/:id`           | Delete user           |
+| GET    | `/listings`            | List all listings     |
+| PUT    | `/listings/:id/verify` | Verify a listing      |
+| DELETE | `/listings/:id`        | Delete listing        |
+| GET    | `/bookings`            | List all bookings     |
+| PUT    | `/bookings/:id`        | Update booking status |
+| DELETE | `/bookings/:id`        | Delete booking        |
+| GET    | `/reviews`             | List all reviews      |
+| DELETE | `/reviews/:id`         | Delete review         |
 
 ## 🛠️ Getting Started
 
-Follow these steps to run the project locally.
-
 ### Prerequisites
 
-- Node.js (v16+ recommended)
+- Node.js (v16+)
 - MongoDB running locally or a MongoDB Atlas connection string
-- Output API Key for OpenAI features (optional, but needed for AI endpoints)
+- OpenAI API Key (required for AI recommendation features)
 
 ### 1. Clone the repository
 
@@ -59,14 +185,22 @@ git clone https://github.com/Isuru-Eranda/Bodim-Places-Finding-Web-Platform-for-
 cd Bodim-Places-Finding-Web-Platform-for-University-Students
 ```
 
-### 2. Backend Setup
+### 2. Install all dependencies
 
 ```bash
-cd backend
+# Install root dependencies
 npm install
+
+# Install backend dependencies
+cd backend && npm install && cd ..
+
+# Install frontend dependencies
+cd frontend && npm install && cd ..
 ```
 
-Create a `.env` file in the `backend/` directory and add your environment variables:
+### 3. Configure environment variables
+
+Create a `.env` file in the `backend/` directory:
 
 ```env
 PORT=5000
@@ -75,29 +209,32 @@ JWT_SECRET=your_jwt_secret_key
 OPENAI_API_KEY=your_openai_api_key
 ```
 
-Run the backend server:
+### 4. Run the application
+
+**Run both frontend and backend together (recommended):**
 
 ```bash
-# For development
+# From the project root
 npm run dev
-
-# For production
-npm start
 ```
 
-### 3. Frontend Setup
-
-Open a new terminal session and navigate to the frontend folder:
+**Or run them separately:**
 
 ```bash
-cd frontend
-npm install
+# Backend (from /backend)
+npm run dev
+
+# Frontend (from /frontend)
+npm run dev
 ```
 
-Run the frontend development server:
+The frontend will be available at `http://localhost:5173` and the backend API at `http://localhost:5000`.
+
+### 5. (Optional) Seed the database
 
 ```bash
-npm run dev
+cd backend
+node seed.js
 ```
 
 ## 📜 License
