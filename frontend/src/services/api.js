@@ -30,4 +30,12 @@ export const getListingById = (id) => api.get(`/listings/${id}`);
 
 export const getAIRecommendations = (data) => api.post('/ai/recommend', data);
 
+// Bookings
+export const createBooking = (data) => api.post('/bookings', data);
+export const getMyBookings = () => api.get('/bookings/my');
+
+// Reviews
+export const getReviews = (listingId) => api.get(`/reviews/${listingId}`);
+export const addReview = (data) => api.post('/reviews', data);
+
 export default api;

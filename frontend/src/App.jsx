@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Browse from './pages/Browse';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ListingDetails from './pages/ListingDetails';
 import { AuthProvider } from './context/AuthContext';
 
 const NO_LAYOUT_PATHS = ['/login', '/register'];
@@ -33,6 +34,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/browse" element={<Browse />} />
+                  <Route path="/listings/:id" element={<ListingDetails />} />
                 </Routes>
               </Layout>
             }
