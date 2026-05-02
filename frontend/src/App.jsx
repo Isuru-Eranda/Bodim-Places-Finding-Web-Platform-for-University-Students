@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -6,7 +6,13 @@ import Browse from './pages/Browse';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ListingDetails from './pages/ListingDetails';
-import { AuthProvider } from './context/AuthContext';
+import AdminLayout from './pages/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminBookings from './pages/admin/AdminBookings';
+import AdminListings from './pages/admin/AdminListings';
+import AdminReviews from './pages/admin/AdminReviews';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 const NO_LAYOUT_PATHS = ['/login', '/register'];
 
@@ -20,6 +26,13 @@ function Layout({ children }) {
   );
 }
 
+function AdminGuard({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  return children;
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -27,6 +40,22 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          {/* Admin panel */}
+          <Route
+            path="/admin"
+            element={
+              <AdminGuard>
+                <AdminLayout />
+              </AdminGuard>
+            }
+          >
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="bookings" element={<AdminBookings />} />
+            <Route path="listings" element={<AdminListings />} />
+            <Route path="reviews" element={<AdminReviews />} />
+          </Route>
+          {/* Public site */}
           <Route
             path="*"
             element={

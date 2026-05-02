@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X, Globe, ChevronDown, LogOut, User } from 'lucide-react';
+import { Menu, X, Globe, ChevronDown, LogOut, User, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
@@ -99,6 +99,15 @@ export default function Navbar() {
                       <p className="text-sm font-semibold text-[#1F2937] truncate">{user.name}</p>
                       <p className="text-xs text-[#6B7280] capitalize">{user.role === 'owner' ? 'Bodim Owner' : user.role}</p>
                     </div>
+                    {user.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-violet-600 hover:bg-violet-50 transition-colors font-medium"
+                      >
+                        <ShieldCheck size={15} /> Admin Panel
+                      </Link>
+                    )}
                     <Link
                       to="/profile"
                       onClick={() => setDropdownOpen(false)}
@@ -167,12 +176,23 @@ export default function Navbar() {
           </nav>
           <div className="flex gap-2 mt-4 pt-4 border-t border-[#E5E7EB]">
             {user ? (
-              <button
-                onClick={handleLogout}
-                className="flex-1 py-2 text-sm font-medium text-center text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
-              >
-                Sign Out
-              </button>
+              <div className="flex-1 flex flex-col gap-2">
+                {user.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setMobileOpen(false)}
+                    className="w-full py-2 text-sm font-medium text-center text-violet-600 border border-violet-300 rounded-lg hover:bg-violet-50 transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    <ShieldCheck size={15} /> Admin Panel
+                  </Link>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="w-full py-2 text-sm font-medium text-center text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
             ) : (
               <>
                 <Link

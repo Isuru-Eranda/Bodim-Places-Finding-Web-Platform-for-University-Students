@@ -31,7 +31,7 @@ export default function Login() {
       setLoading(true);
       const { data } = await loginUser({ email: form.email.trim(), password: form.password });
       login(data);
-      navigate('/');
+      navigate(data.role === 'admin' ? '/admin' : '/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
