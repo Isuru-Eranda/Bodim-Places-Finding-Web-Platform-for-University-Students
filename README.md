@@ -13,10 +13,12 @@ A comprehensive full-stack web application designed to help university students 
 ## 💻 Tech Stack
 
 ### Frontend
+
 - **Framework:** React (Vite)
 - **Styling:** Tailwind CSS
 
 ### Backend
+
 - **Runtime:** Node.js
 - **Framework:** Express.js
 - **Database:** MongoDB (using Mongoose)
@@ -45,29 +47,36 @@ A comprehensive full-stack web application designed to help university students 
 Follow these steps to run the project locally.
 
 ### Prerequisites
+
 - Node.js (v16+ recommended)
 - MongoDB running locally or a MongoDB Atlas connection string
 - Output API Key for OpenAI features (optional, but needed for AI endpoints)
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/Isuru-Eranda/Bodim-Places-Finding-Web-Platform-for-University-Students.git
 cd Bodim-Places-Finding-Web-Platform-for-University-Students
 ```
 
 ### 2. Backend Setup
+
 ```bash
 cd backend
 npm install
 ```
+
 Create a `.env` file in the `backend/` directory and add your environment variables:
+
 ```env
 PORT=5000
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 OPENAI_API_KEY=your_openai_api_key
 ```
+
 Run the backend server:
+
 ```bash
 # For development
 npm run dev
@@ -77,12 +86,16 @@ npm start
 ```
 
 ### 3. Frontend Setup
+
 Open a new terminal session and navigate to the frontend folder:
+
 ```bash
 cd frontend
 npm install
 ```
+
 Run the frontend development server:
+
 ```bash
 npm run dev
 ```
