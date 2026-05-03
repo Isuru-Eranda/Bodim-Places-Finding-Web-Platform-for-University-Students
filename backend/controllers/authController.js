@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import User from "../models/User.js";
+import { s3, getPublicUrl } from "../config/supabase.js";
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -168,7 +171,19 @@ export const uploadProfilePicture = async (req, res) => {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const profilePicture = `/uploads/${req.file.filename}`;
+    const ext = path.extname(req.file.originalname).toLowerCase();
+    const filename = `avatar-${req.user._id}${ext}`;
+
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: "avatars",
+        Key: filename,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      })
+    );
+
+    const profilePicture = getPublicUrl("avatars", filename);
     const updated = await User.findByIdAndUpdate(
       req.user._id,
       { profilePicture },

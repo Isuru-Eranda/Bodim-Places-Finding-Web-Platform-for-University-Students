@@ -63,6 +63,10 @@ app.use("/api/upload", uploadRoutes);
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 
 app.use((err, req, res, next) => {
+  if (err.name === "MulterError") {
+    const status = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+    return res.status(status).json({ message: err.message });
+  }
   console.error(err.stack);
   res.status(500).json({ message: "Internal server error" });
 });
