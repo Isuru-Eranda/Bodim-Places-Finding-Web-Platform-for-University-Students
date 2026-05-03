@@ -3,6 +3,8 @@ dotenv.config();
 
 import express from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/auth.js";
@@ -12,8 +14,12 @@ import reviewRoutes from "./routes/reviews.js";
 import aiRoutes from "./routes/ai.js";
 import adminRoutes from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
+import ownerRoutes from "./routes/owner.js";
+import uploadRoutes from "./routes/upload.js";
 
 connectDB();
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
@@ -39,6 +45,9 @@ app.use(
 );
 app.use(express.json());
 
+// Serve uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.get("/", (req, res) => res.json({ message: "API Running" }));
 
 app.use("/api/auth", authRoutes);
@@ -48,6 +57,8 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/owner", ownerRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.use((req, res) => res.status(404).json({ message: "Route not found" }));
 

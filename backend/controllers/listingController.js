@@ -2,7 +2,7 @@ import Listing from "../models/Listing.js";
 
 export const createListing = async (req, res) => {
   try {
-    const { title, price, location, facilities, images } = req.body;
+    const { title, price, location, facilities, images, coordinates } = req.body;
     const listing = await Listing.create({
       title,
       price,
@@ -10,6 +10,7 @@ export const createListing = async (req, res) => {
       facilities,
       images,
       ownerId: req.user._id,
+      ...(coordinates?.lat != null && coordinates?.lng != null ? { coordinates } : {}),
     });
     res.status(201).json(listing);
   } catch (error) {

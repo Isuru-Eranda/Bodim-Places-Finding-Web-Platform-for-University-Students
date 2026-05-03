@@ -68,6 +68,22 @@ export const adminGetReviews = (params = {}) =>
   api.get("/admin/reviews", { params });
 export const adminDeleteReview = (id) => api.delete(`/admin/reviews/${id}`);
 
+// ─── Upload ───────────────────────────────────────────────────────────────────
+export const uploadImages = (formData) =>
+  api.post("/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+// ─── Owner ────────────────────────────────────────────────────────────────────
+export const ownerGetMyListings = () => api.get("/owner/listings");
+export const ownerCreateListing = (data) => api.post("/owner/listings", data);
+export const ownerUpdateListing = (id, data) =>
+  api.put(`/owner/listings/${id}`, data);
+export const ownerDeleteListing = (id) => api.delete(`/owner/listings/${id}`);
+export const ownerGetBookings = () => api.get("/owner/bookings");
+export const ownerUpdateBookingStatus = (id, status) =>
+  api.put(`/owner/bookings/${id}`, { status });
+
 // ─── Contact ─────────────────────────────────────────────────────────────────
 export const sendContactMessage = (data) => api.post("/contact", data);
 export const adminGetContacts = (params = {}) =>

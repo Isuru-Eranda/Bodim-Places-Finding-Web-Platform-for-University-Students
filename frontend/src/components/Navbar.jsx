@@ -11,10 +11,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const navLinks = [
+const publicNavLinks = [
   { label: "Home", to: "/" },
   { label: "Browse", to: "/browse" },
-  { label: "For Owners", to: "/for-owners" },
   { label: "About Us", to: "/about" },
   { label: "Contact", to: "/contact" },
 ];
@@ -72,7 +71,7 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {[...publicNavLinks, ...(user?.role === "owner" ? [{ label: "For Owners", to: "/for-owners" }] : [])].map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -182,7 +181,7 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="lg:hidden border-t border-[#E5E7EB] bg-[#FFFDFB] px-4 pb-4">
           <nav className="flex flex-col gap-1 pt-3">
-            {navLinks.map((link) => (
+            {[...publicNavLinks, ...(user?.role === "owner" ? [{ label: "For Owners", to: "/for-owners" }] : [])].map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}

@@ -9,6 +9,10 @@ const listingSchema = new mongoose.Schema(
     images: { type: [String], default: [] },
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     isVerified: { type: Boolean, default: false },
+    coordinates: {
+      lat: { type: Number, default: null },
+      lng: { type: Number, default: null },
+    },
   },
   { timestamps: true }
 );
