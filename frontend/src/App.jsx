@@ -1,20 +1,22 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Browse from './pages/Browse';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ListingDetails from './pages/ListingDetails';
-import AdminLayout from './pages/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminBookings from './pages/admin/AdminBookings';
-import AdminListings from './pages/admin/AdminListings';
-import AdminReviews from './pages/admin/AdminReviews';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import Browse from "./pages/Browse";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ListingDetails from "./pages/ListingDetails";
+import Contact from "./pages/Contact";
+import About from "./pages/About";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminBookings from "./pages/admin/AdminBookings";
+import AdminListings from "./pages/admin/AdminListings";
+import AdminReviews from "./pages/admin/AdminReviews";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
-const NO_LAYOUT_PATHS = ['/login', '/register'];
+const NO_LAYOUT_PATHS = ["/login", "/register"];
 
 function Layout({ children }) {
   return (
@@ -29,7 +31,7 @@ function Layout({ children }) {
 function AdminGuard({ children }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  if (user.role !== "admin") return <Navigate to="/" replace />;
   return children;
 }
 
@@ -64,6 +66,8 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/browse" element={<Browse />} />
                   <Route path="/listings/:id" element={<ListingDetails />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/about" element={<About />} />
                 </Routes>
               </Layout>
             }

@@ -1,15 +1,22 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Menu, X, Globe, ChevronDown, LogOut, User, ShieldCheck } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useState, useRef, useEffect } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  Menu,
+  X,
+  Globe,
+  ChevronDown,
+  LogOut,
+  User,
+  ShieldCheck,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const navLinks = [
-  { label: 'Home', to: '/' },
-  { label: 'Browse', to: '/browse' },
-  { label: 'How It Works', to: '/how-it-works' },
-  { label: 'For Owners', to: '/for-owners' },
-  { label: 'About Us', to: '/about' },
-  { label: 'Contact', to: '/contact' },
+  { label: "Home", to: "/" },
+  { label: "Browse", to: "/browse" },
+  { label: "For Owners", to: "/for-owners" },
+  { label: "About Us", to: "/about" },
+  { label: "Contact", to: "/contact" },
 ];
 
 export default function Navbar() {
@@ -26,15 +33,15 @@ export default function Navbar() {
         setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const handleLogout = () => {
     logout();
     setDropdownOpen(false);
     setMobileOpen(false);
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -44,7 +51,16 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="white"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                 <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
@@ -63,8 +79,8 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'text-orange-500 bg-orange-100'
-                      : 'text-[#6B7280] hover:text-[#1F2937] hover:bg-[#F3E8E2]'
+                      ? "text-orange-500 bg-orange-100"
+                      : "text-[#6B7280] hover:text-[#1F2937] hover:bg-[#F3E8E2]"
                   }`
                 }
               >
@@ -90,16 +106,25 @@ export default function Navbar() {
                   <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="font-medium max-w-[120px] truncate">{user.name}</span>
-                  <ChevronDown size={13} className={`transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+                  <span className="font-medium max-w-[120px] truncate">
+                    {user.name}
+                  </span>
+                  <ChevronDown
+                    size={13}
+                    className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-52 bg-white border border-[#E5E7EB] rounded-xl shadow-lg py-1 z-50">
                     <div className="px-4 py-2 border-b border-[#E5E7EB]">
-                      <p className="text-sm font-semibold text-[#1F2937] truncate">{user.name}</p>
-                      <p className="text-xs text-[#6B7280] capitalize">{user.role === 'owner' ? 'Bodim Owner' : user.role}</p>
+                      <p className="text-sm font-semibold text-[#1F2937] truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-[#6B7280] capitalize">
+                        {user.role === "owner" ? "Bodim Owner" : user.role}
+                      </p>
                     </div>
-                    {user.role === 'admin' && (
+                    {user.role === "admin" && (
                       <Link
                         to="/admin"
                         onClick={() => setDropdownOpen(false)}
@@ -165,8 +190,8 @@ export default function Navbar() {
                 className={({ isActive }) =>
                   `px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'text-orange-500 bg-orange-100'
-                      : 'text-[#6B7280] hover:text-[#1F2937] hover:bg-[#F3E8E2]'
+                      ? "text-orange-500 bg-orange-100"
+                      : "text-[#6B7280] hover:text-[#1F2937] hover:bg-[#F3E8E2]"
                   }`
                 }
               >
@@ -177,7 +202,7 @@ export default function Navbar() {
           <div className="flex gap-2 mt-4 pt-4 border-t border-[#E5E7EB]">
             {user ? (
               <div className="flex-1 flex flex-col gap-2">
-                {user.role === 'admin' && (
+                {user.role === "admin" && (
                   <Link
                     to="/admin"
                     onClick={() => setMobileOpen(false)}
