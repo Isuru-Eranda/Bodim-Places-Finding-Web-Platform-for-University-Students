@@ -225,7 +225,7 @@ function ImageGallery({ images }) {
   );
 }
 
-function BookingCard({ listingId, price, user, existingBooking }) {
+function BookingCard({ listingId, price, user, existingBooking, owner }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [booking, setBooking] = useState(existingBooking || null);
@@ -335,23 +335,47 @@ function BookingCard({ listingId, price, user, existingBooking }) {
         </div>
       )}
 
-      {/* Contact info placeholder */}
+      {/* Contact Owner */}
       <div className="pt-4 border-t border-[#E5E7EB] space-y-2">
         <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide">Contact Owner</p>
-        <a
-          href="tel:+94771234567"
-          className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
-        >
-          <Phone size={15} className="text-orange-400" />
-          <span>+94 77 123 4567</span>
-        </a>
-        <a
-          href="mailto:owner@example.com"
-          className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
-        >
-          <Mail size={15} className="text-orange-400" />
-          <span>owner@example.com</span>
-        </a>
+        {owner?.name && (
+          <div className="flex items-center gap-2 text-sm text-[#374151]">
+            <User size={15} className="text-orange-400 flex-shrink-0" />
+            <span className="font-medium">{owner.name}</span>
+          </div>
+        )}
+        {owner?.email && (
+          <a
+            href={`mailto:${owner.email}`}
+            className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
+          >
+            <Mail size={15} className="text-orange-400 flex-shrink-0" />
+            <span className="truncate">{owner.email}</span>
+          </a>
+        )}
+        {owner?.contactNumber && (
+          <a
+            href={`tel:${owner.contactNumber}`}
+            className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
+          >
+            <Phone size={15} className="text-orange-400 flex-shrink-0" />
+            <span>{owner.contactNumber}</span>
+          </a>
+        )}
+        {owner?.whatsapp && (
+          <a
+            href={`https://wa.me/${owner.whatsapp.replace(/[^0-9]/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-[#374151] hover:text-green-600 transition-colors"
+          >
+            <MessageSquare size={15} className="text-green-500 flex-shrink-0" />
+            <span>{owner.whatsapp}</span>
+          </a>
+        )}
+        {!owner?.contactNumber && !owner?.whatsapp && (
+          <p className="text-xs text-[#9CA3AF] italic">No contact details provided yet.</p>
+        )}
       </div>
     </div>
   );
@@ -602,10 +626,12 @@ export default function ListingDetails() {
 
   const {
     title = 'Boarding Place',
+    description = '',
     location = 'Unknown Location',
     price = 0,
     images = [],
     facilities = [],
+    roomsAvailable = null,
     isVerified = false,
     createdAt,
     coordinates = null,
@@ -669,13 +695,6 @@ export default function ListingDetails() {
               </span>
             </div>
           </div>
-
-          <div className="text-right">
-            <div className="text-2xl font-bold text-orange-500">
-              LKR {Number(price).toLocaleString()}
-            </div>
-            <div className="text-sm text-[#6B7280]">per month</div>
-          </div>
         </div>
 
         {/* ── Main grid ── */}
@@ -686,6 +705,27 @@ export default function ListingDetails() {
 
             {/* Gallery */}
             <ImageGallery images={images} />
+
+            {/* Description */}
+            {description && (
+              <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
+                <h2 className="font-bold text-[#1F2937] text-lg mb-3">About this place</h2>
+                <p className="text-sm text-[#374151] leading-relaxed whitespace-pre-line">{description}</p>
+              </section>
+            )}
+
+            {/* Rooms available */}
+            {roomsAvailable != null && (
+              <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6 flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                  <Home size={20} className="text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wide">Rooms Available</p>
+                  <p className="text-lg font-bold text-[#1F2937]">{roomsAvailable}</p>
+                </div>
+              </section>
+            )}
 
             {/* Facilities */}
             <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
@@ -745,6 +785,7 @@ export default function ListingDetails() {
                 price={price}
                 user={user}
                 existingBooking={existingBooking}
+                owner={listing.ownerId}
               />
             </div>
           </div>

@@ -23,6 +23,13 @@ api.interceptors.request.use((config) => {
 export const registerUser = (data) => api.post("/auth/register", data);
 export const loginUser = (data) => api.post("/auth/login", data);
 export const getMe = () => api.get("/auth/me");
+export const updateProfile = (data) => api.put("/auth/profile", data);
+export const changePassword = (data) => api.put("/auth/change-password", data);
+export const updateContactDetails = (data) => api.put("/auth/contact-details", data);
+export const uploadProfilePicture = (formData) =>
+  api.post("/auth/profile-picture", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
 // Listings
 export const getListings = (params = {}, signal) =>

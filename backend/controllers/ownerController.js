@@ -22,7 +22,7 @@ export const getMyListingBookings = async (req, res) => {
     const listingIds = listings.map((l) => l._id);
 
     const bookings = await Booking.find({ listingId: { $in: listingIds } })
-      .populate("studentId", "name email")
+      .populate("studentId", "name email contactNumber whatsapp guardianMobile profilePicture")
       .populate("listingId", "title price location")
       .sort({ createdAt: -1 });
 
@@ -56,7 +56,7 @@ export const updateBookingStatus = async (req, res) => {
     await booking.save();
 
     const updated = await Booking.findById(booking._id)
-      .populate("studentId", "name email")
+      .populate("studentId", "name email contactNumber whatsapp guardianMobile profilePicture")
       .populate("listingId", "title price location");
 
     res.json(updated);

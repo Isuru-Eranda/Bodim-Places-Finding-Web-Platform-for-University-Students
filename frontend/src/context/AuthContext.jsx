@@ -17,13 +17,19 @@ export function AuthProvider({ children }) {
     setUser(userData);
   };
 
+  const updateUser = (updatedData) => {
+    const merged = { ...user, ...updatedData };
+    localStorage.setItem('bodim_user', JSON.stringify(merged));
+    setUser(merged);
+  };
+
   const logout = () => {
     localStorage.removeItem('bodim_user');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

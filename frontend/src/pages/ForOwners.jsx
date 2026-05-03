@@ -20,6 +20,10 @@ import {
   Car,
   Shield,
   ImagePlus,
+  Phone,
+  MessageSquare,
+  Mail,
+  Users,
 } from "lucide-react";
 import {
   ownerGetMyListings,
@@ -49,10 +53,12 @@ const STATUS_BADGE = {
 
 const emptyForm = {
   title: "",
+  description: "",
   price: "",
   location: "",
   lat: null,
   lng: null,
+  roomsAvailable: "",
   facilities: [],
   existingImageUrls: [],
   newFiles: [],
@@ -127,10 +133,12 @@ export default function ForOwners() {
     setEditTarget(listing);
     setForm({
       title: listing.title,
+      description: listing.description || "",
       price: listing.price,
       location: listing.location,
       lat: listing.coordinates?.lat ?? null,
       lng: listing.coordinates?.lng ?? null,
+      roomsAvailable: listing.roomsAvailable ?? "",
       facilities: listing.facilities || [],
       existingImageUrls: listing.images || [],
       newFiles: [],
@@ -165,8 +173,10 @@ export default function ForOwners() {
 
       const payload = {
         title: form.title.trim(),
+        description: form.description.trim(),
         price: Number(form.price),
         location: form.location.trim(),
+        roomsAvailable: form.roomsAvailable !== "" ? Number(form.roomsAvailable) : null,
         facilities: form.facilities,
         images: [...form.existingImageUrls, ...uploadedUrls],
         ...(form.lat != null && form.lng != null
@@ -431,6 +441,19 @@ export default function ForOwners() {
 
               <div>
                 <label className="block text-xs font-medium text-[#374151] mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={form.description}
+                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                  placeholder="Describe the property, surroundings, rules, etc."
+                  className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#374151] mb-1">
                   Monthly Price (Rs.) *
                 </label>
                 <input
@@ -440,6 +463,20 @@ export default function ForOwners() {
                   value={form.price}
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   placeholder="e.g. 8000"
+                  className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#374151] mb-1">
+                  Rooms Available
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.roomsAvailable}
+                  onChange={(e) => setForm((f) => ({ ...f, roomsAvailable: e.target.value }))}
+                  placeholder="e.g. 3"
                   className="w-full border border-[#D1D5DB] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
               </div>
@@ -691,9 +728,169 @@ function ListingCard({ listing, onEdit, onDelete }) {
   );
 }
 
+function StudentProfileModal({ student, bookingStatus, bookingDate, onClose }) {
+  const apiBase =
+    (import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "");
+  const avatarSrc = student?.profilePicture
+    ? `${apiBase}${student.profilePicture}`
+    : null;
+
+  // Close on backdrop click
+  const handleBackdrop = (e) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  if (!student) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      onClick={handleBackdrop}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        {/* Header strip */}
+        <div className="bg-[#F9FAFB] border-b border-[#E5E7EB] px-6 pt-5 pb-5 relative flex items-center justify-between">
+          <p className="text-xs font-semibold text-[#9CA3AF] uppercase tracking-wide">Student Profile</p>
+          <button
+            onClick={onClose}
+            className="text-[#9CA3AF] hover:text-[#1F2937] transition-colors p-1 rounded-full hover:bg-[#E5E7EB]"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Avatar — sits on top of the header, centred */}
+        <div className="flex flex-col items-center px-6 pb-5 pt-5">
+          <div className="w-20 h-20 rounded-full border-4 border-white shadow-lg bg-orange-100 flex items-center justify-center overflow-hidden flex-shrink-0 ring-2 ring-orange-200">
+            {avatarSrc ? (
+              <img
+                src={avatarSrc}
+                alt={student.name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            ) : (
+              <span className="text-3xl font-bold text-orange-500">
+                {student.name?.charAt(0).toUpperCase() || "?"}
+              </span>
+            )}
+          </div>
+
+          <h3 className="mt-3 text-lg font-bold text-[#1F2937] text-center">
+            {student.name || "Unknown Student"}
+          </h3>
+          <span className="mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-600">
+            Student
+          </span>
+
+          {/* Booking meta */}
+          <div className="mt-3 flex items-center gap-3 text-xs text-[#6B7280]">
+            <span>
+              Requested{" "}
+              {new Date(bookingDate).toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
+            <span className={`px-2 py-0.5 rounded-full font-medium capitalize ${
+              bookingStatus === "confirmed"
+                ? "bg-green-100 text-green-700"
+                : bookingStatus === "cancelled"
+                ? "bg-red-100 text-red-600"
+                : "bg-yellow-100 text-yellow-700"
+            }`}>
+              {bookingStatus}
+            </span>
+          </div>
+
+          {/* Divider */}
+          <div className="w-full border-t border-[#E5E7EB] mt-4 mb-3" />
+
+          {/* Contact details */}
+          <div className="w-full space-y-2.5">
+            <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-wide">
+              Contact Details
+            </p>
+
+            {student.email && (
+              <a
+                href={`mailto:${student.email}`}
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#FFF7F0] transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 transition-colors">
+                  <Mail size={15} className="text-orange-500" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] text-[#9CA3AF] font-medium">Email</p>
+                  <p className="text-sm text-[#1F2937] truncate">{student.email}</p>
+                </div>
+              </a>
+            )}
+
+            {student.contactNumber && (
+              <a
+                href={`tel:${student.contactNumber}`}
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#FFF7F0] transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 transition-colors">
+                  <Phone size={15} className="text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-[#9CA3AF] font-medium">Contact Number</p>
+                  <p className="text-sm text-[#1F2937]">{student.contactNumber}</p>
+                </div>
+              </a>
+            )}
+
+            {student.whatsapp && (
+              <a
+                href={`https://wa.me/${student.whatsapp.replace(/[^0-9]/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#F0FFF4] transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0 group-hover:bg-green-100 transition-colors">
+                  <MessageSquare size={15} className="text-green-600" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-[#9CA3AF] font-medium">WhatsApp</p>
+                  <p className="text-sm text-[#1F2937]">{student.whatsapp}</p>
+                </div>
+              </a>
+            )}
+
+            {student.guardianMobile && (
+              <a
+                href={`tel:${student.guardianMobile}`}
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-[#FFF7F0] transition-colors group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-100 transition-colors">
+                  <Users size={15} className="text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-[#9CA3AF] font-medium">Guardian Mobile</p>
+                  <p className="text-sm text-[#1F2937]">{student.guardianMobile}</p>
+                </div>
+              </a>
+            )}
+
+            {!student.contactNumber && !student.whatsapp && !student.guardianMobile && (
+              <p className="text-xs text-[#9CA3AF] italic px-2.5">
+                This student has not added contact details yet.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function BookingRow({ booking, onAction }) {
   const student = booking.studentId;
   const [loading, setLoading] = useState(null); // "confirmed" | "cancelled"
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const handleClick = async (status) => {
     setLoading(status);
@@ -702,58 +899,83 @@ function BookingRow({ booking, onAction }) {
   };
 
   return (
-    <div className="flex items-center justify-between px-5 py-3.5 gap-4 hover:bg-[#FAFAFA] transition-colors">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-          {student?.name?.charAt(0).toUpperCase() || "?"}
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-[#1F2937] truncate">
-            {student?.name || "Unknown Student"}
-          </p>
-          <p className="text-xs text-[#6B7280] truncate">{student?.email}</p>
-          <p className="text-xs text-[#9CA3AF] mt-0.5">
-            {new Date(booking.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
+    <>
+      {profileOpen && (
+        <StudentProfileModal
+          student={student}
+          bookingStatus={booking.status}
+          bookingDate={booking.createdAt}
+          onClose={() => setProfileOpen(false)}
+        />
+      )}
 
-      <div className="flex items-center gap-2 flex-shrink-0">
-        <span
-          className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_BADGE[booking.status]}`}
+      <div className="flex items-center justify-between px-5 py-3.5 gap-4 hover:bg-[#FAFAFA] transition-colors border-b border-[#F3F4F6] last:border-b-0">
+        {/* Clickable student info */}
+        <button
+          onClick={() => setProfileOpen(true)}
+          className="flex items-center gap-3 min-w-0 text-left group"
+          title="View student profile"
         >
-          {booking.status}
-        </span>
+          <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 group-hover:ring-2 group-hover:ring-orange-300 transition-all overflow-hidden">
+            {student?.profilePicture ? (
+              <img
+                src={`${(import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "")}${student.profilePicture}`}
+                alt={student.name}
+                className="w-full h-full object-cover"
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
+              />
+            ) : (
+              student?.name?.charAt(0).toUpperCase() || "?"
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-[#1F2937] truncate group-hover:text-orange-500 transition-colors">
+              {student?.name || "Unknown Student"}
+            </p>
+            <p className="text-xs text-[#6B7280] truncate">{student?.email}</p>
+            <p className="text-xs text-[#9CA3AF] mt-0.5">
+              {new Date(booking.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+        </button>
 
-        {booking.status === "pending" && (
-          <>
-            <button
-              onClick={() => handleClick("confirmed")}
-              disabled={!!loading}
-              title="Accept"
-              className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors disabled:opacity-50"
-            >
-              {loading === "confirmed" ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <CheckCircle size={16} />
-              )}
-            </button>
-            <button
-              onClick={() => handleClick("cancelled")}
-              disabled={!!loading}
-              title="Reject"
-              className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
-            >
-              {loading === "cancelled" ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <XCircle size={16} />
-              )}
-            </button>
-          </>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span
+            className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${STATUS_BADGE[booking.status]}`}
+          >
+            {booking.status}
+          </span>
+
+          {booking.status === "pending" && (
+            <>
+              <button
+                onClick={() => handleClick("confirmed")}
+                disabled={!!loading}
+                title="Accept"
+                className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition-colors disabled:opacity-50"
+              >
+                {loading === "confirmed" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <CheckCircle size={16} />
+                )}
+              </button>
+              <button
+                onClick={() => handleClick("cancelled")}
+                disabled={!!loading}
+                title="Reject"
+                className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                {loading === "cancelled" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <XCircle size={16} />
+                )}
+              </button>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
