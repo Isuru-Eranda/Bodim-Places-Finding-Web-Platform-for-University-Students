@@ -6,6 +6,7 @@ import {
   Clock, User, MessageSquare, Send, AlertCircle, ZoomIn, X,
   Phone, Mail, Home, Dumbbell, Tv,
 } from 'lucide-react';
+import { useJsApiLoader, GoogleMap as GMap, Marker } from '@react-google-maps/api';
 import { useAuth } from '../context/AuthContext';
 import {
   getListingById,
@@ -14,6 +15,11 @@ import {
   createBooking,
   getMyBookings,
 } from '../services/api';
+
+/* ─── Google Maps stable refs ────────────────────────────── */
+const MAP_LIBS = [];
+const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
+const MAP_OPTIONS = { gestureHandling: 'cooperative', streetViewControl: false, mapTypeControl: false };
 
 /* ─── Constants ─────────────────────────────────────────── */
 const PLACEHOLDER = 'https://placehold.co/800x500/F3E8E2/8B5E3C?text=No+Image';
@@ -68,13 +74,56 @@ function StarRating({ value, onChange, readOnly = false }) {
   );
 }
 
-function GoogleMap({ location }) {
-  const encoded = encodeURIComponent(location);
-  // Legacy embed URL — works without any API activation or billing
-  const src = `https://maps.google.com/maps?q=${encoded}&z=15&output=embed`;
+function ListingMap({ location, coordinates }) {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+    libraries: MAP_LIBS,
+  });
 
+  const hasPin =
+    coordinates?.lat != null && coordinates?.lng != null;
+  const pos = hasPin
+    ? { lat: coordinates.lat, lng: coordinates.lng }
+    : null;
+
+  if (hasPin) {
+    if (!isLoaded) {
+      return (
+        <div
+          className="w-full rounded-xl bg-[#F3F4F6] flex items-center justify-center"
+          style={{ height: 300 }}
+        >
+          <svg className="animate-spin w-8 h-8 text-orange-400" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+        </div>
+      );
+    }
+    return (
+      <div
+        className="w-full rounded-xl overflow-hidden border border-[#E5E7EB] shadow-sm"
+        style={{ height: 300 }}
+      >
+        <GMap
+          mapContainerStyle={MAP_CONTAINER_STYLE}
+          center={pos}
+          zoom={15}
+          options={MAP_OPTIONS}
+        >
+          <Marker position={pos} />
+        </GMap>
+      </div>
+    );
+  }
+
+  // Fallback — no coordinates stored yet: use legacy embed
+  const src = `https://maps.google.com/maps?q=${encodeURIComponent(location)}&z=15&output=embed`;
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-[#E5E7EB] shadow-sm" style={{ height: 300 }}>
+    <div
+      className="w-full rounded-xl overflow-hidden border border-[#E5E7EB] shadow-sm"
+      style={{ height: 300 }}
+    >
       <iframe
         title="Listing Location"
         src={src}
@@ -176,7 +225,7 @@ function ImageGallery({ images }) {
   );
 }
 
-function BookingCard({ listingId, price, user, existingBooking }) {
+function BookingCard({ listingId, price, user, existingBooking, owner }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [booking, setBooking] = useState(existingBooking || null);
@@ -252,7 +301,7 @@ function BookingCard({ listingId, price, user, existingBooking }) {
             {[
               { icon: Calendar, text: 'Flexible move-in date' },
               { icon: ShieldCheck, text: 'Verified & safe listing' },
-              { icon: CheckCircle, text: 'Instant booking confirmation' },
+              { icon: Clock, text: 'Owner reviews your request' },
             ].map(({ icon: Icon, text }) => (
               <li key={text} className="flex items-center gap-2">
                 <Icon size={16} className="text-orange-500 flex-shrink-0" />
@@ -274,35 +323,59 @@ function BookingCard({ listingId, price, user, existingBooking }) {
             className="w-full py-3 bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
           >
             {loading ? <Spinner size="sm" /> : <Calendar size={18} />}
-            {loading ? 'Booking...' : user ? 'Book Now' : 'Login to Book'}
+            {loading ? 'Sending Request...' : user ? 'Request to Book' : 'Login to Request'}
           </button>
 
           {!user && (
             <p className="text-center text-xs text-[#6B7280]">
               <Link to="/login" className="text-orange-500 font-medium hover:underline">Sign in</Link>
-              {' '}to make a booking
+              {' '}to send a booking request
             </p>
           )}
         </div>
       )}
 
-      {/* Contact info placeholder */}
+      {/* Contact Owner */}
       <div className="pt-4 border-t border-[#E5E7EB] space-y-2">
         <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wide">Contact Owner</p>
-        <a
-          href="tel:+94771234567"
-          className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
-        >
-          <Phone size={15} className="text-orange-400" />
-          <span>+94 77 123 4567</span>
-        </a>
-        <a
-          href="mailto:owner@example.com"
-          className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
-        >
-          <Mail size={15} className="text-orange-400" />
-          <span>owner@example.com</span>
-        </a>
+        {owner?.name && (
+          <div className="flex items-center gap-2 text-sm text-[#374151]">
+            <User size={15} className="text-orange-400 flex-shrink-0" />
+            <span className="font-medium">{owner.name}</span>
+          </div>
+        )}
+        {owner?.email && (
+          <a
+            href={`mailto:${owner.email}`}
+            className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
+          >
+            <Mail size={15} className="text-orange-400 flex-shrink-0" />
+            <span className="truncate">{owner.email}</span>
+          </a>
+        )}
+        {owner?.contactNumber && (
+          <a
+            href={`tel:${owner.contactNumber}`}
+            className="flex items-center gap-2 text-sm text-[#374151] hover:text-orange-500 transition-colors"
+          >
+            <Phone size={15} className="text-orange-400 flex-shrink-0" />
+            <span>{owner.contactNumber}</span>
+          </a>
+        )}
+        {owner?.whatsapp && (
+          <a
+            href={`https://wa.me/${owner.whatsapp.replace(/[^0-9]/g, '')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm text-[#374151] hover:text-green-600 transition-colors"
+          >
+            <MessageSquare size={15} className="text-green-500 flex-shrink-0" />
+            <span>{owner.whatsapp}</span>
+          </a>
+        )}
+        {!owner?.contactNumber && !owner?.whatsapp && (
+          <p className="text-xs text-[#9CA3AF] italic">No contact details provided yet.</p>
+        )}
       </div>
     </div>
   );
@@ -553,12 +626,15 @@ export default function ListingDetails() {
 
   const {
     title = 'Boarding Place',
+    description = '',
     location = 'Unknown Location',
     price = 0,
     images = [],
     facilities = [],
+    roomsAvailable = null,
     isVerified = false,
     createdAt,
+    coordinates = null,
   } = listing;
 
   const avgRating = reviews.length
@@ -619,13 +695,6 @@ export default function ListingDetails() {
               </span>
             </div>
           </div>
-
-          <div className="text-right">
-            <div className="text-2xl font-bold text-orange-500">
-              LKR {Number(price).toLocaleString()}
-            </div>
-            <div className="text-sm text-[#6B7280]">per month</div>
-          </div>
         </div>
 
         {/* ── Main grid ── */}
@@ -636,6 +705,27 @@ export default function ListingDetails() {
 
             {/* Gallery */}
             <ImageGallery images={images} />
+
+            {/* Description */}
+            {description && (
+              <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
+                <h2 className="font-bold text-[#1F2937] text-lg mb-3">About this place</h2>
+                <p className="text-sm text-[#374151] leading-relaxed whitespace-pre-line">{description}</p>
+              </section>
+            )}
+
+            {/* Rooms available */}
+            {roomsAvailable != null && (
+              <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6 flex items-center gap-4">
+                <div className="w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center flex-shrink-0">
+                  <Home size={20} className="text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-[#6B7280] font-medium uppercase tracking-wide">Rooms Available</p>
+                  <p className="text-lg font-bold text-[#1F2937]">{roomsAvailable}</p>
+                </div>
+              </section>
+            )}
 
             {/* Facilities */}
             <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
@@ -678,7 +768,7 @@ export default function ListingDetails() {
                   Open in Maps ↗
                 </a>
               </div>
-              <GoogleMap location={location} />
+              <ListingMap location={location} coordinates={coordinates} />
             </section>
 
             {/* Reviews */}
@@ -695,6 +785,7 @@ export default function ListingDetails() {
                 price={price}
                 user={user}
                 existingBooking={existingBooking}
+                owner={listing.ownerId}
               />
             </div>
           </div>

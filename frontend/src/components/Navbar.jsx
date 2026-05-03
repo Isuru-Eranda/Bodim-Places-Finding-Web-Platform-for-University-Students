@@ -11,10 +11,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-const navLinks = [
+const publicNavLinks = [
   { label: "Home", to: "/" },
-  { label: "Browse", to: "/browse" },
-  { label: "For Owners", to: "/for-owners" },
+  { label: "Find a Place", to: "/browse" },
   { label: "About Us", to: "/about" },
   { label: "Contact", to: "/contact" },
 ];
@@ -72,7 +71,7 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {[...publicNavLinks, ...(user?.role === "owner" ? [{ label: "For Owners", to: "/for-owners" }] : [])].map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -103,8 +102,17 @@ export default function Navbar() {
                   onClick={() => setDropdownOpen((v) => !v)}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#E5E7EB] hover:border-orange-400 transition-colors text-sm text-[#1F2937]"
                 >
-                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold">
-                    {user.name.charAt(0).toUpperCase()}
+                  <div className="w-6 h-6 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold overflow-hidden">
+                    {user.profilePicture ? (
+                      <img
+                        src={`${(import.meta.env.VITE_API_URL || "http://localhost:5000/api").replace("/api", "")}${user.profilePicture}`}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : (
+                      user.name.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <span className="font-medium max-w-[120px] truncate">
                     {user.name}
@@ -182,7 +190,7 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="lg:hidden border-t border-[#E5E7EB] bg-[#FFFDFB] px-4 pb-4">
           <nav className="flex flex-col gap-1 pt-3">
-            {navLinks.map((link) => (
+            {[...publicNavLinks, ...(user?.role === "owner" ? [{ label: "For Owners", to: "/for-owners" }] : [])].map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -211,6 +219,13 @@ export default function Navbar() {
                     <ShieldCheck size={15} /> Admin Panel
                   </Link>
                 )}
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="w-full py-2 text-sm font-medium text-center text-[#1F2937] border border-[#E5E7EB] rounded-lg hover:border-orange-400 hover:text-orange-500 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <User size={15} /> My Profile
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="w-full py-2 text-sm font-medium text-center text-red-500 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"

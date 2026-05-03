@@ -23,6 +23,13 @@ api.interceptors.request.use((config) => {
 export const registerUser = (data) => api.post("/auth/register", data);
 export const loginUser = (data) => api.post("/auth/login", data);
 export const getMe = () => api.get("/auth/me");
+export const updateProfile = (data) => api.put("/auth/profile", data);
+export const changePassword = (data) => api.put("/auth/change-password", data);
+export const updateContactDetails = (data) => api.put("/auth/contact-details", data);
+export const uploadProfilePicture = (formData) =>
+  api.post("/auth/profile-picture", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
 
 // Listings
 export const getListings = (params = {}, signal) =>
@@ -67,6 +74,22 @@ export const adminDeleteBooking = (id) => api.delete(`/admin/bookings/${id}`);
 export const adminGetReviews = (params = {}) =>
   api.get("/admin/reviews", { params });
 export const adminDeleteReview = (id) => api.delete(`/admin/reviews/${id}`);
+
+// ─── Upload ───────────────────────────────────────────────────────────────────
+export const uploadImages = (formData) =>
+  api.post("/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
+// ─── Owner ────────────────────────────────────────────────────────────────────
+export const ownerGetMyListings = () => api.get("/owner/listings");
+export const ownerCreateListing = (data) => api.post("/owner/listings", data);
+export const ownerUpdateListing = (id, data) =>
+  api.put(`/owner/listings/${id}`, data);
+export const ownerDeleteListing = (id) => api.delete(`/owner/listings/${id}`);
+export const ownerGetBookings = () => api.get("/owner/bookings");
+export const ownerUpdateBookingStatus = (id, status) =>
+  api.put(`/owner/bookings/${id}`, { status });
 
 // ─── Contact ─────────────────────────────────────────────────────────────────
 export const sendContactMessage = (data) => api.post("/contact", data);

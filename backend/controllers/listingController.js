@@ -2,14 +2,17 @@ import Listing from "../models/Listing.js";
 
 export const createListing = async (req, res) => {
   try {
-    const { title, price, location, facilities, images } = req.body;
+    const { title, description, price, location, roomsAvailable, facilities, images, coordinates } = req.body;
     const listing = await Listing.create({
       title,
+      description,
       price,
       location,
+      roomsAvailable: roomsAvailable != null ? Number(roomsAvailable) : null,
       facilities,
       images,
       ownerId: req.user._id,
+      ...(coordinates?.lat != null && coordinates?.lng != null ? { coordinates } : {}),
     });
     res.status(201).json(listing);
   } catch (error) {
@@ -87,7 +90,7 @@ export const getAllListings = async (req, res) => {
 
     const [listings, total] = await Promise.all([
       Listing.find(query)
-        .populate("ownerId", "name email")
+        .populate("ownerId", "name email contactNumber whatsapp profilePicture")
         .sort(sortOption)
         .skip(skip)
         .limit(limitNum),
@@ -107,7 +110,7 @@ export const getAllListings = async (req, res) => {
 
 export const getListingById = async (req, res) => {
   try {
-    const listing = await Listing.findById(req.params.id).populate("ownerId", "name email");
+    const listing = await Listing.findById(req.params.id).populate("ownerId", "name email contactNumber whatsapp profilePicture");
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     res.json(listing);
   } catch (error) {

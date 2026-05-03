@@ -14,6 +14,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminListings from "./pages/admin/AdminListings";
 import AdminReviews from "./pages/admin/AdminReviews";
+import ForOwners from "./pages/ForOwners";
+import MyProfile from "./pages/MyProfile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 const NO_LAYOUT_PATHS = ["/login", "/register"];
@@ -32,6 +34,19 @@ function AdminGuard({ children }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role !== "admin") return <Navigate to="/" replace />;
+  return children;
+}
+
+function OwnerGuard({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role !== "owner") return <Navigate to="/" replace />;
+  return children;
+}
+
+function AuthGuard({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
@@ -68,6 +83,22 @@ function App() {
                   <Route path="/listings/:id" element={<ListingDetails />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/about" element={<About />} />
+                  <Route
+                    path="/profile"
+                    element={
+                      <AuthGuard>
+                        <MyProfile />
+                      </AuthGuard>
+                    }
+                  />
+                  <Route
+                    path="/for-owners"
+                    element={
+                      <OwnerGuard>
+                        <ForOwners />
+                      </OwnerGuard>
+                    }
+                  />
                 </Routes>
               </Layout>
             }

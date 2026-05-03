@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import SearchBox from './SearchBox';
 
 export default function Hero({ setListings, setLoading, setError }) {
@@ -45,39 +44,7 @@ export default function Hero({ setListings, setLoading, setError }) {
               ))}
             </ul>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              <Link
-                to="/browse"
-                className="px-6 py-3 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors shadow-sm"
-              >
-                Find a Place
-              </Link>
-              <Link
-                to="/list-property"
-                className="px-6 py-3 text-[#1F2937] font-semibold rounded-xl border border-[#E5E7EB] hover:border-orange-500 hover:text-orange-500 transition-colors"
-              >
-                List Your Property
-              </Link>
-            </div>
 
-            {/* Trust Indicators */}
-            <div className="flex items-center gap-6 pt-2">
-              <div className="text-center">
-                <p className="text-xl font-bold text-[#1F2937]">1,250+</p>
-                <p className="text-xs text-[#6B7280]">Verified Places</p>
-              </div>
-              <div className="w-px h-10 bg-[#E5E7EB]"></div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-[#1F2937]">8,500+</p>
-                <p className="text-xs text-[#6B7280]">Happy Students</p>
-              </div>
-              <div className="w-px h-10 bg-[#E5E7EB]"></div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-[#1F2937]">25+</p>
-                <p className="text-xs text-[#6B7280]">University Areas</p>
-              </div>
-            </div>
           </div>
 
           {/* Right: Search Box */}
