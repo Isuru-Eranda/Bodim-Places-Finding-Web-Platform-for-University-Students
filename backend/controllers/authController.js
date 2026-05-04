@@ -1,9 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import path from "path";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import User from "../models/User.js";
-import { s3, getPublicUrl } from "../config/supabase.js";
+import supabase from "../config/supabase.js";
 
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
@@ -13,11 +12,14 @@ export const register = async (req, res) => {
     const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Name, email and password are required" });
     }
 
     const existing = await User.findOne({ email });
-    if (existing) return res.status(409).json({ message: "Email already in use" });
+    if (existing)
+      return res.status(409).json({ message: "Email already in use" });
 
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashed, role });
@@ -39,7 +41,9 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     const user = await User.findOne({ email });
@@ -61,8 +65,26 @@ export const login = async (req, res) => {
 };
 
 export const getMe = async (req, res) => {
-  const { _id, name, email, role, profilePicture, contactNumber, whatsapp, guardianMobile } = req.user;
-  res.json({ _id, name, email, role, profilePicture, contactNumber, whatsapp, guardianMobile });
+  const {
+    _id,
+    name,
+    email,
+    role,
+    profilePicture,
+    contactNumber,
+    whatsapp,
+    guardianMobile,
+  } = req.user;
+  res.json({
+    _id,
+    name,
+    email,
+    role,
+    profilePicture,
+    contactNumber,
+    whatsapp,
+    guardianMobile,
+  });
 };
 
 export const updateProfile = async (req, res) => {
@@ -82,7 +104,7 @@ export const updateProfile = async (req, res) => {
     const updated = await User.findByIdAndUpdate(
       req.user._id,
       { name: name.trim(), email: email.toLowerCase().trim() },
-      { new: true, select: "-password" }
+      { new: true, select: "-password" },
     );
 
     res.json({
@@ -105,7 +127,9 @@ export const changePassword = async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return res.status(400).json({ message: "All password fields are required" });
+      return res
+        .status(400)
+        .json({ message: "All password fields are required" });
     }
 
     if (newPassword !== confirmPassword) {
@@ -113,7 +137,9 @@ export const changePassword = async (req, res) => {
     }
 
     if (newPassword.length < 6) {
-      return res.status(400).json({ message: "New password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ message: "New password must be at least 6 characters" });
     }
 
     const user = await User.findById(req.user._id);
@@ -174,20 +200,23 @@ export const uploadProfilePicture = async (req, res) => {
     const ext = path.extname(req.file.originalname).toLowerCase();
     const filename = `avatar-${req.user._id}${ext}`;
 
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: "avatars",
-        Key: filename,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype,
-      })
-    );
+    const { error: uploadError } = await supabase.storage
+      .from("Bodime_Finder")
+      .upload(filename, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true,
+      });
 
-    const profilePicture = getPublicUrl("avatars", filename);
+    if (uploadError) throw new Error(uploadError.message);
+
+    const { data: urlData } = supabase.storage
+      .from("Bodime_Finder")
+      .getPublicUrl(filename);
+    const profilePicture = urlData.publicUrl;
     const updated = await User.findByIdAndUpdate(
       req.user._id,
       { profilePicture },
-      { new: true, select: "-password" }
+      { new: true, select: "-password" },
     );
 
     res.json({
