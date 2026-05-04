@@ -1,20 +1,34 @@
-import { Pannellum } from "pannellum-react";
+import { useEffect, useRef } from "react";
 import { X, RotateCcw, ChevronLeft } from "lucide-react";
+import "pannellum/build/pannellum.js";
+import "pannellum/build/pannellum.css";
 
 export function Viewer360({ image }) {
-  return (
-    <Pannellum
-      width="100%"
-      height="400px"
-      image={image}
-      pitch={10}
-      yaw={180}
-      hfov={110}
-      autoLoad
-      showZoomCtrl={true}
-      mouseZoom={true}
-    />
-  );
+  const containerRef = useRef(null);
+  const viewerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current || !image) return;
+    // eslint-disable-next-line no-undef
+    viewerRef.current = window.pannellum.viewer(containerRef.current, {
+      type: "equirectangular",
+      panorama: image,
+      pitch: 10,
+      yaw: 180,
+      hfov: 110,
+      autoLoad: true,
+      showZoomCtrl: true,
+      mouseZoom: true,
+    });
+    return () => {
+      if (viewerRef.current) {
+        viewerRef.current.destroy();
+        viewerRef.current = null;
+      }
+    };
+  }, [image]);
+
+  return <div ref={containerRef} style={{ width: "100%", height: "400px" }} />;
 }
 
 export function Modal360({ image, onClose }) {

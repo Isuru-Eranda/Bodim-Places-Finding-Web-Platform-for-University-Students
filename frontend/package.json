@@ -15,7 +15,7 @@
     "axios": "^1.16.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.14.0",
-    "pannellum-react": "^1.2.4",
+    "pannellum": "^2.5.7",
     "prop-types": "^15.8.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
