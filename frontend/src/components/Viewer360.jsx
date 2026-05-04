@@ -1,5 +1,5 @@
 import { Pannellum } from "pannellum-react";
-import { X, RotateCcw } from "lucide-react";
+import { X, RotateCcw, ChevronLeft } from "lucide-react";
 
 export function Viewer360({ image }) {
   return (
@@ -33,10 +33,21 @@ export function Modal360({ image, onClose }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-white/10">
+          {/* Back button */}
+          <button
+            onClick={onClose}
+            className="flex items-center gap-1.5 text-white/70 hover:text-white transition-colors text-sm font-medium px-2 py-1 rounded-lg hover:bg-white/10"
+            aria-label="Back"
+          >
+            <ChevronLeft size={18} />
+            Back
+          </button>
+
           <span className="text-white font-semibold text-sm flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-orange-500 inline-block" />
             360° Virtual Tour
           </span>
+
           <div className="flex items-center gap-3">
             <span className="text-white/40 text-xs hidden sm:block">
               <RotateCcw size={12} className="inline mr-1" />
