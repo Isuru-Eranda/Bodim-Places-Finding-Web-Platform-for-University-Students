@@ -16,3 +16,18 @@ export const upload = multer({
   fileFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB per file
 });
+
+// Relaxed filter for 360° panoramic images (larger files, any image type)
+const fileFilter360 = (_req, file, cb) => {
+  if (file.mimetype.startsWith("image/")) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image files are allowed for 360° upload"));
+  }
+};
+
+export const upload360 = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: fileFilter360,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB — panoramas can be large
+});

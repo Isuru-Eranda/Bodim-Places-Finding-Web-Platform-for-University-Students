@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   MapPin, Star, Wifi, Car, UtensilsCrossed, ShieldCheck,
-  Droplets, WashingMachine, ChevronLeft, Calendar, CheckCircle,
+  Droplets, WashingMachine, ChevronLeft, ChevronRight, Calendar, CheckCircle,
   Clock, User, MessageSquare, Send, AlertCircle, ZoomIn, X,
-  Phone, Mail, Home, Dumbbell, Tv,
+  Phone, Mail, Home, Dumbbell, Tv, Rotate3D,
 } from 'lucide-react';
 import { useJsApiLoader, GoogleMap as GMap, Marker } from '@react-google-maps/api';
 import { useAuth } from '../context/AuthContext';
+import { Modal360 } from '../components/Viewer360';
 import {
   getListingById,
   getReviews,
@@ -144,6 +145,9 @@ function ImageGallery({ images }) {
 
   const imgs = images && images.length > 0 ? images : [PLACEHOLDER];
 
+  const prev = (e) => { e.stopPropagation(); setActive((a) => (a - 1 + imgs.length) % imgs.length); };
+  const next = (e) => { e.stopPropagation(); setActive((a) => (a + 1) % imgs.length); };
+
   return (
     <>
       {/* Main image */}
@@ -160,6 +164,27 @@ function ImageGallery({ images }) {
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
           <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-lg" size={36} />
         </div>
+
+        {/* Prev / Next arrows */}
+        {imgs.length > 1 && (
+          <>
+            <button
+              onClick={prev}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={next}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+              aria-label="Next image"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </>
+        )}
+
         {imgs.length > 1 && (
           <span className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm">
             {active + 1} / {imgs.length}
@@ -201,6 +226,18 @@ function ImageGallery({ images }) {
           >
             <X size={32} />
           </button>
+
+          {/* Lightbox prev arrow */}
+          {imgs.length > 1 && (
+            <button
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+              onClick={prev}
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={26} />
+            </button>
+          )}
+
           <img
             src={imgs[active]}
             alt="Listing"
@@ -208,6 +245,18 @@ function ImageGallery({ images }) {
             onClick={(e) => e.stopPropagation()}
             onError={(e) => { e.target.src = PLACEHOLDER; }}
           />
+
+          {/* Lightbox next arrow */}
+          {imgs.length > 1 && (
+            <button
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors"
+              onClick={next}
+              aria-label="Next image"
+            >
+              <ChevronRight size={26} />
+            </button>
+          )}
+
           {imgs.length > 1 && (
             <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
               {imgs.map((_, i) => (
@@ -369,7 +418,15 @@ function BookingCard({ listingId, price, user, existingBooking, owner }) {
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-sm text-[#374151] hover:text-green-600 transition-colors"
           >
-            <MessageSquare size={15} className="text-green-500 flex-shrink-0" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 32 32"
+              className="w-4 h-4 flex-shrink-0"
+              fill="#25D366"
+              aria-hidden="true"
+            >
+              <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.737 5.469 2.027 7.77L0 32l8.43-2.01A15.938 15.938 0 0 0 16 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.27 13.27 0 0 1-6.77-1.848l-.485-.29-5.003 1.194 1.218-4.868-.317-.5A13.267 13.267 0 0 1 2.667 16C2.667 8.636 8.636 2.667 16 2.667S29.333 8.636 29.333 16 23.364 29.333 16 29.333zm7.27-9.87c-.398-.199-2.355-1.162-2.72-1.295-.366-.133-.632-.199-.898.199-.266.398-1.031 1.295-1.264 1.561-.233.266-.465.299-.863.1-.398-.199-1.681-.619-3.202-1.977-1.183-1.056-1.982-2.361-2.215-2.759-.233-.398-.025-.613.175-.811.18-.178.398-.465.597-.698.199-.233.266-.398.398-.664.133-.266.067-.498-.033-.697-.1-.199-.898-2.163-1.231-2.961-.324-.778-.654-.672-.898-.685l-.765-.013c-.266 0-.697.1-1.063.498-.366.398-1.396 1.363-1.396 3.326s1.43 3.858 1.629 4.124c.199.266 2.814 4.297 6.818 6.027.953.411 1.697.656 2.277.839.956.304 1.827.261 2.515.158.767-.114 2.355-.963 2.688-1.893.333-.93.333-1.727.233-1.893-.1-.166-.366-.266-.764-.465z"/>
+            </svg>
             <span>{owner.whatsapp}</span>
           </a>
         )}
@@ -549,6 +606,7 @@ export default function ListingDetails() {
   const [existingBooking, setExistingBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [show360Modal, setShow360Modal] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -635,6 +693,7 @@ export default function ListingDetails() {
     isVerified = false,
     createdAt,
     coordinates = null,
+    image360 = null,
   } = listing;
 
   const avgRating = reviews.length
@@ -706,6 +765,37 @@ export default function ListingDetails() {
             {/* Gallery */}
             <ImageGallery images={images} />
 
+            {/* 360° View */}
+            {image360 ? (
+              <button
+                onClick={() => setShow360Modal(true)}
+                className="relative w-full rounded-2xl overflow-hidden group shadow-lg border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                style={{ height: '220px' }}
+                aria-label="Open 360° Virtual Tour"
+              >
+                {/* Preview image */}
+                <img
+                  src={image360}
+                  alt="360° preview"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                {/* Dark gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 group-hover:from-black/80 group-hover:via-black/40 transition-colors duration-300" />
+                {/* Centred icon + label */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  <div className="w-14 h-14 rounded-full bg-orange-500/90 group-hover:bg-orange-500 flex items-center justify-center shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <Rotate3D size={28} className="text-white" />
+                  </div>
+                  <span className="text-white font-bold text-base drop-shadow">360° Virtual Tour</span>
+                  <span className="text-white/70 text-xs">Click to explore this space in 360°</span>
+                </div>
+                {/* Corner badge */}
+                <span className="absolute top-3 left-3 text-[10px] font-bold text-white bg-orange-500 px-2 py-0.5 rounded-full shadow">
+                  360°
+                </span>
+              </button>
+            ) : null}
+
             {/* Description */}
             {description && (
               <section className="bg-white rounded-2xl border border-[#E5E7EB] p-6">
@@ -760,7 +850,11 @@ export default function ListingDetails() {
                 <MapPin size={15} className="text-orange-400 flex-shrink-0" />
                 <span>{location}</span>
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}
+                  href={
+                    coordinates?.lat != null && coordinates?.lng != null
+                      ? `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`
+                      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-auto text-orange-500 hover:text-orange-600 font-medium text-xs underline-offset-2 hover:underline flex-shrink-0"
@@ -792,6 +886,11 @@ export default function ListingDetails() {
 
         </div>
       </div>
+
+      {/* 360° Modal */}
+      {show360Modal && image360 && (
+        <Modal360 image={image360} onClose={() => setShow360Modal(false)} />
+      )}
     </div>
   );
 }

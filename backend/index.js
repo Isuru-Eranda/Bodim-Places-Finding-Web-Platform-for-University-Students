@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
+import { supabaseAdmin } from "./config/supabase.js";
 
 import authRoutes from "./routes/auth.js";
 import listingRoutes from "./routes/listings.js";
@@ -13,8 +14,12 @@ import adminRoutes from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
 import ownerRoutes from "./routes/owner.js";
 import uploadRoutes from "./routes/upload.js";
+import { scheduleUnverifyStaleListings } from "./jobs/unverifyStaleListings.js";
 
 connectDB();
+
+// Start scheduled jobs
+scheduleUnverifyStaleListings();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -70,3 +75,16 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Ensure the Supabase 360° image bucket exists at startup
+(async () => {
+  const { error } = await supabaseAdmin.storage.createBucket("listing-360", {
+    public: true,
+    allowedMimeTypes: ["image/*"],
+  });
+  if (error && !error.message?.toLowerCase().includes("already exist")) {
+    console.warn("[supabase] Could not create listing-360 bucket:", error.message);
+  } else {
+    console.log("[supabase] listing-360 bucket ready");
+  }
+})();

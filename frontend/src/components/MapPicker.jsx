@@ -1,44 +1,17 @@
-import { useState, useCallback, useEffect } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import { useState, useCallback, useRef } from "react";
+import { useJsApiLoader, GoogleMap, Marker } from "@react-google-maps/api";
 import { Search, Loader2, MapPin } from "lucide-react";
 
-// Fix default marker icons broken by Vite's asset handling
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
-
 // Default center: Sri Lanka
-const DEFAULT_CENTER = [7.8731, 80.7718];
-
-// Internal component: handles map click events and re-centering
-function MapClickHandler({ onMapClick }) {
-  useMapEvents({
-    click(e) {
-      onMapClick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
-
-function RecenterMap({ center }) {
-  const map = useMap();
-  useEffect(() => {
-    map.setView(center, map.getZoom());
-  }, [center, map]);
-  return null;
-}
+const DEFAULT_CENTER = { lat: 7.8731, lng: 80.7718 };
+const MAP_LIBS = [];
+const MAP_CONTAINER_STYLE = { width: "100%", height: "220px" };
+const MAP_OPTIONS = {
+  gestureHandling: "cooperative",
+  streetViewControl: false,
+  mapTypeControl: false,
+  fullscreenControl: false,
+};
 
 /**
  * MapPicker
@@ -57,12 +30,18 @@ export default function MapPicker({
   onAddressChange,
   onPinChange,
 }) {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    libraries: MAP_LIBS,
+  });
+
   const hasPin = lat != null && lng != null;
-  const [mapCenter, setMapCenter] = useState(
-    hasPin ? [lat, lng] : DEFAULT_CENTER,
-  );
+  const pinPos = hasPin ? { lat, lng } : null;
+  const center = hasPin ? { lat, lng } : DEFAULT_CENTER;
+
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeError, setGeocodeError] = useState("");
+  const mapRef = useRef(null);
 
   const handleSearch = useCallback(async () => {
     if (!address.trim()) return;
@@ -77,8 +56,9 @@ export default function MapPicker({
       if (results.length > 0) {
         const newLat = parseFloat(results[0].lat);
         const newLng = parseFloat(results[0].lon);
-        setMapCenter([newLat, newLng]);
         onPinChange(newLat, newLng);
+        mapRef.current?.panTo({ lat: newLat, lng: newLng });
+        mapRef.current?.setZoom(15);
       } else {
         setGeocodeError("Location not found. Try a more specific name.");
       }
@@ -97,12 +77,17 @@ export default function MapPicker({
   };
 
   const handleMapClick = useCallback(
-    (newLat, newLng) => {
-      setMapCenter([newLat, newLng]);
+    (e) => {
+      const newLat = e.latLng.lat();
+      const newLng = e.latLng.lng();
       onPinChange(newLat, newLng);
     },
     [onPinChange],
   );
+
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+  }, []);
 
   return (
     <div className="space-y-2">
@@ -137,20 +122,25 @@ export default function MapPicker({
 
       {/* Map */}
       <div className="rounded-xl overflow-hidden border border-[#E5E7EB]">
-        <MapContainer
-          center={mapCenter}
-          zoom={hasPin ? 15 : 7}
-          style={{ width: "100%", height: "220px" }}
-          scrollWheelZoom={false}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <MapClickHandler onMapClick={handleMapClick} />
-          <RecenterMap center={mapCenter} />
-          {hasPin && <Marker position={[lat, lng]} />}
-        </MapContainer>
+        {!isLoaded ? (
+          <div
+            className="w-full bg-[#F3F4F6] flex items-center justify-center"
+            style={{ height: "220px" }}
+          >
+            <Loader2 className="animate-spin w-6 h-6 text-orange-400" />
+          </div>
+        ) : (
+          <GoogleMap
+            mapContainerStyle={MAP_CONTAINER_STYLE}
+            center={center}
+            zoom={hasPin ? 15 : 7}
+            options={MAP_OPTIONS}
+            onClick={handleMapClick}
+            onLoad={onMapLoad}
+          >
+            {pinPos && <Marker position={pinPos} />}
+          </GoogleMap>
+        )}
       </div>
 
       {/* Pin status hint */}

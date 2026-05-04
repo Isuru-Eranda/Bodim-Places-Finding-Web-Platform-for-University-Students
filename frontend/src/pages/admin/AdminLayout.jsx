@@ -9,6 +9,7 @@ import {
   LogOut,
   Menu,
   ExternalLink,
+  MessageSquare,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { to: '/admin/listings', label: 'Listings', icon: Building2 },
   { to: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
   { to: '/admin/reviews', label: 'Reviews', icon: Star },
+  { to: '/admin/messages', label: 'Messages', icon: MessageSquare },
 ];
 
 export default function AdminLayout() {
