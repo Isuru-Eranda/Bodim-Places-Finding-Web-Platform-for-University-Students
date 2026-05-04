@@ -14,8 +14,12 @@ import adminRoutes from "./routes/admin.js";
 import contactRoutes from "./routes/contact.js";
 import ownerRoutes from "./routes/owner.js";
 import uploadRoutes from "./routes/upload.js";
+import { scheduleUnverifyStaleListings } from "./jobs/unverifyStaleListings.js";
 
 connectDB();
+
+// Start scheduled jobs
+scheduleUnverifyStaleListings();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

@@ -13,8 +13,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminListings from "./pages/admin/AdminListings";
-import AdminReviews from "./pages/admin/AdminReviews";
-import ForOwners from "./pages/ForOwners";
+import AdminReviews from "./pages/admin/AdminReviews";import AdminMessages from './pages/admin/AdminMessages';import ForOwners from "./pages/ForOwners";
 import MyProfile from "./pages/MyProfile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -71,6 +70,7 @@ function App() {
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="listings" element={<AdminListings />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="messages" element={<AdminMessages />} />
           </Route>
           {/* Public site */}
           <Route

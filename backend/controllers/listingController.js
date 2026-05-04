@@ -12,6 +12,7 @@ export const createListing = async (req, res) => {
       facilities,
       images,
       image360: image360 || null,
+      imagesUpdatedAt: images && images.length > 0 ? new Date() : null,
       ownerId: req.user._id,
       ...(coordinates?.lat != null && coordinates?.lng != null ? { coordinates } : {}),
     });
@@ -130,7 +131,12 @@ export const updateListing = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to update this listing" });
     }
 
-    const updated = await Listing.findByIdAndUpdate(req.params.id, req.body, {
+    const updateData = { ...req.body };
+    // Refresh imagesUpdatedAt whenever images are explicitly updated
+    if (req.body.images !== undefined) {
+      updateData.imagesUpdatedAt = new Date();
+    }
+    const updated = await Listing.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });

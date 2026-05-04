@@ -10,6 +10,7 @@ const listingSchema = new mongoose.Schema(
     facilities: { type: [String], default: [] },
     images: { type: [String], default: [] },
     image360: { type: String, default: null },
+    imagesUpdatedAt: { type: Date, default: null },
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     isVerified: { type: Boolean, default: false },
     coordinates: {
