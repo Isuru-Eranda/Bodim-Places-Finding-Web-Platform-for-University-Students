@@ -760,7 +760,11 @@ export default function ListingDetails() {
                 <MapPin size={15} className="text-orange-400 flex-shrink-0" />
                 <span>{location}</span>
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}
+                  href={
+                    coordinates?.lat != null && coordinates?.lng != null
+                      ? `https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}`
+                      : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-auto text-orange-500 hover:text-orange-600 font-medium text-xs underline-offset-2 hover:underline flex-shrink-0"
