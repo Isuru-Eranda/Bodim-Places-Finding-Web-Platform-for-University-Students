@@ -81,6 +81,11 @@ export const uploadImages = (formData) =>
     headers: { "Content-Type": "multipart/form-data" },
   });
 
+export const upload360Image = (formData) =>
+  api.post("/upload/360", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+
 // ─── Owner ────────────────────────────────────────────────────────────────────
 export const ownerGetMyListings = () => api.get("/owner/listings");
 export const ownerCreateListing = (data) => api.post("/owner/listings", data);
@@ -100,3 +105,6 @@ export const adminUpdateContactStatus = (id, status) =>
 export const adminDeleteContact = (id) => api.delete(`/contact/${id}`);
 
 export default api;
+
+
+

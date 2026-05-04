@@ -13,6 +13,7 @@ import {
   ChevronUp,
   MapPin,
   DollarSign,
+  Rotate3D,
   Wifi,
   ShowerHead,
   UtensilsCrossed,
@@ -33,6 +34,7 @@ import {
   ownerGetBookings,
   ownerUpdateBookingStatus,
   uploadImages,
+  upload360Image,
 } from "../services/api";
 import MapPicker from "../components/MapPicker";
 
@@ -62,6 +64,7 @@ const emptyForm = {
   facilities: [],
   existingImageUrls: [],
   newFiles: [],
+  image360: null,
 };
 
 export default function ForOwners() {
@@ -78,6 +81,11 @@ export default function ForOwners() {
   const [form, setForm] = useState(emptyForm);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState("");
+
+  // ── 360° image upload state ─────────────────────────────────────────────────
+  const [uploading360, setUploading360] = useState(false);
+  const [upload360Error, setUpload360Error] = useState("");
+  const [upload360Success, setUpload360Success] = useState(false);
 
   // ── Delete confirm ──────────────────────────────────────────────────────────
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -126,6 +134,8 @@ export default function ForOwners() {
     setEditTarget(null);
     setForm(emptyForm);
     setFormError("");
+    setUpload360Error("");
+    setUpload360Success(false);
     setModalOpen(true);
   };
 
@@ -142,13 +152,38 @@ export default function ForOwners() {
       facilities: listing.facilities || [],
       existingImageUrls: listing.images || [],
       newFiles: [],
+      image360: listing.image360 || null,
     });
     setFormError("");
+    setUpload360Error("");
+    setUpload360Success(false);
     setModalOpen(true);
   };
 
-  const toggleFacility = (val) => {
-    setForm((f) => ({
+  // ── 360° upload handler ─────────────────────────────────────────────────────
+  const handle360Upload = async (file) => {
+    if (!file) return;
+    setUploading360(true);
+    setUpload360Error("");
+    setUpload360Success(false);
+
+    try {
+      const fd = new FormData();
+      fd.append("image360", file);
+      const { data } = await upload360Image(fd);
+      setForm((f) => ({ ...f, image360: data.url }));
+      setUpload360Success(true);
+      setTimeout(() => setUpload360Success(false), 4000);
+    } catch (err) {
+      setUpload360Error(
+        err?.response?.data?.message || err.message || "Failed to upload 360° image."
+      );
+    } finally {
+      setUploading360(false);
+    }
+  };
+
+  const toggleFacility = (val) => {    setForm((f) => ({
       ...f,
       facilities: f.facilities.includes(val)
         ? f.facilities.filter((x) => x !== val)
@@ -179,6 +214,7 @@ export default function ForOwners() {
         roomsAvailable: form.roomsAvailable !== "" ? Number(form.roomsAvailable) : null,
         facilities: form.facilities,
         images: [...form.existingImageUrls, ...uploadedUrls],
+        image360: form.image360 || null,
         ...(form.lat != null && form.lng != null
           ? { coordinates: { lat: form.lat, lng: form.lng } }
           : {}),
@@ -599,6 +635,70 @@ export default function ForOwners() {
                 </p>
               </div>
 
+              {/* 360° Image Upload */}
+              <div>
+                <label className="flex items-center gap-1.5 text-xs font-medium text-[#374151] mb-2">
+                  <Rotate3D size={13} className="text-orange-500" />
+                  360° Panoramic Image
+                  <span className="text-[#9CA3AF] font-normal">(optional)</span>
+                </label>
+
+                {/* Preview current 360 image */}
+                {form.image360 && (
+                  <div className="flex items-center gap-3 mb-2 p-2.5 bg-orange-50 border border-orange-200 rounded-lg">
+                    <Rotate3D size={18} className="text-orange-500 flex-shrink-0" />
+                    <span className="text-xs text-[#374151] truncate flex-1">
+                      360° image uploaded
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, image360: null }))}
+                      className="text-red-400 hover:text-red-600 transition-colors flex-shrink-0"
+                      title="Remove 360° image"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+
+                <label className={`flex items-center gap-2 cursor-pointer w-fit px-3 py-2 border border-dashed rounded-lg text-xs transition-colors ${
+                  uploading360
+                    ? "border-orange-300 text-orange-400 cursor-not-allowed"
+                    : "border-[#D1D5DB] text-[#6B7280] hover:border-orange-400 hover:text-orange-500"
+                }`}>
+                  {uploading360
+                    ? <Loader2 size={14} className="animate-spin" />
+                    : <Rotate3D size={14} />
+                  }
+                  <span>{uploading360 ? "Uploading…" : "Choose 360° image"}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={uploading360}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handle360Upload(file);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+
+                {upload360Error && (
+                  <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
+                    <XCircle size={12} /> {upload360Error}
+                  </p>
+                )}
+                {upload360Success && (
+                  <p className="text-xs text-green-600 mt-1.5 flex items-center gap-1">
+                    <CheckCircle size={12} /> 360° image uploaded successfully!
+                  </p>
+                )}
+                <p className="text-[10px] text-[#9CA3AF] mt-1">
+                  Equirectangular panoramic image &middot; JPEG or PNG
+                </p>
+              </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
@@ -609,7 +709,7 @@ export default function ForOwners() {
                 </button>
                 <button
                   type="submit"
-                  disabled={formLoading}
+                  disabled={formLoading || uploading360}
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors disabled:opacity-60"
                 >
                   {formLoading && <Loader2 size={14} className="animate-spin" />}

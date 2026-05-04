@@ -9,6 +9,7 @@ const listingSchema = new mongoose.Schema(
     roomsAvailable: { type: Number, default: null },
     facilities: { type: [String], default: [] },
     images: { type: [String], default: [] },
+    image360: { type: String, default: null },
     ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     isVerified: { type: Boolean, default: false },
     coordinates: {

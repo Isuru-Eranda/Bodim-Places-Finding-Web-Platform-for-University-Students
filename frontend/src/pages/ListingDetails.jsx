@@ -4,10 +4,11 @@ import {
   MapPin, Star, Wifi, Car, UtensilsCrossed, ShieldCheck,
   Droplets, WashingMachine, ChevronLeft, Calendar, CheckCircle,
   Clock, User, MessageSquare, Send, AlertCircle, ZoomIn, X,
-  Phone, Mail, Home, Dumbbell, Tv,
+  Phone, Mail, Home, Dumbbell, Tv, Rotate3D,
 } from 'lucide-react';
 import { useJsApiLoader, GoogleMap as GMap, Marker } from '@react-google-maps/api';
 import { useAuth } from '../context/AuthContext';
+import { Modal360 } from '../components/Viewer360';
 import {
   getListingById,
   getReviews,
@@ -549,6 +550,7 @@ export default function ListingDetails() {
   const [existingBooking, setExistingBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [show360Modal, setShow360Modal] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -635,6 +637,7 @@ export default function ListingDetails() {
     isVerified = false,
     createdAt,
     coordinates = null,
+    image360 = null,
   } = listing;
 
   const avgRating = reviews.length
@@ -705,6 +708,20 @@ export default function ListingDetails() {
 
             {/* Gallery */}
             <ImageGallery images={images} />
+
+            {/* 360° View */}
+            {image360 ? (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShow360Modal(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-md hover:shadow-lg"
+                >
+                  <Rotate3D size={18} />
+                  360° Virtual Tour
+                </button>
+                <span className="text-xs text-[#9CA3AF]">Click to explore this space in 360°</span>
+              </div>
+            ) : null}
 
             {/* Description */}
             {description && (
@@ -796,6 +813,11 @@ export default function ListingDetails() {
 
         </div>
       </div>
+
+      {/* 360° Modal */}
+      {show360Modal && image360 && (
+        <Modal360 image={image360} onClose={() => setShow360Modal(false)} />
+      )}
     </div>
   );
 }
