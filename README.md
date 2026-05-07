@@ -23,34 +23,37 @@ A comprehensive full-stack web application designed to help university students 
 
 ### Frontend
 
-| Technology              | Version  | Purpose                        |
-| ----------------------- | -------- | ------------------------------ |
-| React                   | ^19.2.5  | UI library                     |
-| React Router DOM        | ^7.14.2  | Client-side routing            |
-| Vite                    | ^8.0.10  | Build tool                     |
-| Tailwind CSS            | ^3.4.19  | Utility-first CSS framework    |
-| Axios                   | ^1.16.0  | HTTP client                    |
-| Lucide React            | ^1.14.0  | Icon library                   |
-| @react-google-maps/api  | ^2.20.8  | Google Maps integration        |
-| Leaflet / React-Leaflet | ^1.9.4   | Alternative map library        |
-| Pannellum               | ^2.5.7   | 360° panoramic image viewer    |
-| @supabase/supabase-js   | ^2.105.3 | Supabase client (file storage) |
+| Technology             | Version  | Purpose                        |
+| ---------------------- | -------- | ------------------------------ |
+| React                  | ^19.2.5  | UI library                     |
+| React Router DOM       | ^7.14.2  | Client-side routing            |
+| Vite                   | ^8.0.10  | Build tool                     |
+| Tailwind CSS           | ^3.4.19  | Utility-first CSS framework    |
+| Axios                  | ^1.16.0  | HTTP client                    |
+| Lucide React           | ^1.14.0  | Icon library                   |
+| @react-google-maps/api | ^2.20.8  | Google Maps integration        |
+| Leaflet                | ^1.9.4   | Alternative map library        |
+| React-Leaflet          | ^5.0.0   | React bindings for Leaflet     |
+| Pannellum              | ^2.5.7   | 360° panoramic image viewer    |
+| prop-types             | ^15.8.1  | Runtime prop type checking     |
+| @supabase/supabase-js  | ^2.105.3 | Supabase client (file storage) |
 
 ### Backend
 
-| Technology            | Version  | Purpose                              |
-| --------------------- | -------- | ------------------------------------ |
-| Node.js               | v20+     | Runtime environment                  |
-| Express.js            | ^5.2.1   | Web framework                        |
-| MongoDB / Mongoose    | ^9.2.1   | Database & ODM                       |
-| JSON Web Tokens       | ^9.0.3   | Authentication tokens                |
-| bcryptjs              | ^3.0.3   | Password hashing                     |
-| OpenAI SDK            | ^6.35.0  | AI recommendations (GPT-3.5)         |
-| @supabase/supabase-js | ^2.105.3 | Supabase client (file storage)       |
-| Multer                | ^2.1.1   | File upload middleware               |
-| node-cron             | ^4.2.1   | Scheduled jobs (stale listing check) |
-| ws                    | ^8.20.0  | WebSocket support for Supabase       |
-| dotenv                | ^17.3.1  | Environment variable loading         |
+| Technology            | Version   | Purpose                              |
+| --------------------- | --------- | ------------------------------------ |
+| Node.js               | v20+      | Runtime environment                  |
+| Express.js            | ^5.2.1    | Web framework                        |
+| MongoDB / Mongoose    | ^9.2.1    | Database & ODM                       |
+| JSON Web Tokens       | ^9.0.3    | Authentication tokens                |
+| bcryptjs              | ^3.0.3    | Password hashing                     |
+| OpenAI SDK            | ^6.35.0   | AI recommendations (GPT-3.5)         |
+| @supabase/supabase-js | ^2.105.3  | Supabase client (file storage)       |
+| @aws-sdk/client-s3    | ^3.1041.0 | AWS S3 SDK (file storage fallback)   |
+| Multer                | ^2.1.1    | File upload middleware               |
+| node-cron             | ^4.2.1    | Scheduled jobs (stale listing check) |
+| ws                    | ^8.20.0   | WebSocket support for Supabase       |
+| dotenv                | ^17.3.1   | Environment variable loading         |
 
 ## 📁 Project Structure
 
