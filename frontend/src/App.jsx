@@ -13,11 +13,11 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminListings from "./pages/admin/AdminListings";
-import AdminReviews from "./pages/admin/AdminReviews";import AdminMessages from './pages/admin/AdminMessages';import ForOwners from "./pages/ForOwners";
+import AdminReviews from "./pages/admin/AdminReviews";
+import AdminMessages from "./pages/admin/AdminMessages";
+import ForOwners from "./pages/ForOwners";
 import MyProfile from "./pages/MyProfile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-
-const NO_LAYOUT_PATHS = ["/login", "/register"];
 
 function Layout({ children }) {
   return (
@@ -56,6 +56,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
           {/* Admin panel */}
           <Route
             path="/admin"
@@ -72,37 +73,32 @@ function App() {
             <Route path="reviews" element={<AdminReviews />} />
             <Route path="messages" element={<AdminMessages />} />
           </Route>
+
           {/* Public site */}
-          <Route
-            path="*"
-            element={
-              <Layout>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/browse" element={<Browse />} />
-                  <Route path="/listings/:id" element={<ListingDetails />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/about" element={<About />} />
-                  <Route
-                    path="/profile"
-                    element={
-                      <AuthGuard>
-                        <MyProfile />
-                      </AuthGuard>
-                    }
-                  />
-                  <Route
-                    path="/for-owners"
-                    element={
-                      <OwnerGuard>
-                        <ForOwners />
-                      </OwnerGuard>
-                    }
-                  />
-                </Routes>
-              </Layout>
-            }
-          />
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="browse" element={<Browse />} />
+            <Route path="listings/:id" element={<ListingDetails />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="about" element={<About />} />
+            <Route
+              path="profile"
+              element={
+                <AuthGuard>
+                  <MyProfile />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="for-owners"
+              element={
+                <OwnerGuard>
+                  <ForOwners />
+                </OwnerGuard>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

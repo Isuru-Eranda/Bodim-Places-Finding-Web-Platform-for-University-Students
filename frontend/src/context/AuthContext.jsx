@@ -1,11 +1,11 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
-      const stored = localStorage.getItem('bodim_user');
+      const stored = localStorage.getItem("bodim_user");
       return stored ? JSON.parse(stored) : null;
     } catch {
       return null;
@@ -13,18 +13,18 @@ export function AuthProvider({ children }) {
   });
 
   const login = (userData) => {
-    localStorage.setItem('bodim_user', JSON.stringify(userData));
+    localStorage.setItem("bodim_user", JSON.stringify(userData));
     setUser(userData);
   };
 
   const updateUser = (updatedData) => {
     const merged = { ...user, ...updatedData };
-    localStorage.setItem('bodim_user', JSON.stringify(merged));
+    localStorage.setItem("bodim_user", JSON.stringify(merged));
     setUser(merged);
   };
 
   const logout = () => {
-    localStorage.removeItem('bodim_user');
+    localStorage.removeItem("bodim_user");
     setUser(null);
   };
 
