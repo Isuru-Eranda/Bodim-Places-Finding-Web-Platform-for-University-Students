@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -19,11 +25,13 @@ import ForOwners from "./pages/ForOwners";
 import MyProfile from "./pages/MyProfile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
-function Layout({ children }) {
+function Layout() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FFFDFB]">
       <Navbar />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1">
+        <Outlet />
+      </div>
       <Footer />
     </div>
   );

@@ -58,7 +58,7 @@ A comprehensive full-stack web application designed to help university students 
 ## 📁 Project Structure
 
 ```
-├── package.json            # Root scripts to run both servers concurrently
+├── package.json            # Root scripts to run both servers together using concurrently
 │
 ├── backend/
 │   ├── index.js            # Express server entry point
@@ -254,10 +254,10 @@ git clone https://github.com/Isuru-Eranda/Bodim-Places-Finding-Web-Platform-for-
 cd Bodim-Places-Finding-Web-Platform-for-University-Students
 ```
 
-### 2. Install all dependencies
+### 2. Install dependencies
 
 ```bash
-# Install root dependencies
+# Install root dependencies (concurrently manager)
 npm install
 
 # Install backend dependencies
@@ -266,6 +266,8 @@ cd backend && npm install && cd ..
 # Install frontend dependencies
 cd frontend && npm install && cd ..
 ```
+
+> Note: The root `package.json` contains the `dev` and `start` scripts that launch both backend and frontend together using `concurrently`.
 
 ### 3. Configure environment variables
 
@@ -299,7 +301,14 @@ VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 npm run dev
 ```
 
-**Or run them separately:**
+**Alternative startup command:**
+
+```bash
+# From the project root
+npm run start
+```
+
+**Or run services individually:**
 
 ```bash
 # Backend (from /backend)
