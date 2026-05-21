@@ -1,17 +1,20 @@
-import { useState } from 'react';
-import { Search, MapPin, DollarSign, Home, Users, Zap } from 'lucide-react';
-import { getListings } from '../services/api';
+import { useState } from "react";
+import { Search, MapPin, DollarSign, Zap } from "lucide-react";
+import { getListings } from "../services/api";
 
-const ROOM_TYPES = ['Any', 'Single', 'Double', 'Triple', 'Dormitory'];
-const GENDERS = ['Any', 'Male', 'Female', 'Mixed'];
-const FACILITIES_OPTIONS = ['WiFi', 'Parking', 'Kitchen', 'Laundry', 'Security', 'Water'];
+const FACILITIES_OPTIONS = [
+  "WiFi",
+  "Parking",
+  "Kitchen",
+  "Laundry",
+  "Security",
+  "Water",
+];
 
 export default function SearchBox({ setListings, setLoading, setError }) {
   const [form, setForm] = useState({
-    location: '',
-    maxPrice: '',
-    roomType: 'Any',
-    gender: 'Any',
+    location: "",
+    maxPrice: "",
     facilities: [],
   });
   const [searching, setSearching] = useState(false);
@@ -39,17 +42,17 @@ export default function SearchBox({ setListings, setLoading, setError }) {
     setError(null);
 
     const params = {};
-    if (form.location) params.location = form.location;
+    if (form.location) params.search = form.location;
     if (form.maxPrice) params.maxPrice = form.maxPrice;
-    if (form.roomType !== 'Any') params.roomType = form.roomType;
-    if (form.gender !== 'Any') params.gender = form.gender;
-    if (form.facilities.length > 0) params.facilities = form.facilities.join(',');
+    if (form.facilities.length > 0)
+      params.facilities = form.facilities.join(",");
 
     try {
       const res = await getListings(params);
       setListings(res.data?.data || res.data || []);
     } catch (err) {
-      const msg = err.response?.data?.message || 'Search failed. Please try again.';
+      const msg =
+        err.response?.data?.message || "Search failed. Please try again.";
       setInlineError(msg);
       setError(msg);
     } finally {
@@ -66,17 +69,26 @@ export default function SearchBox({ setListings, setLoading, setError }) {
           <Search size={16} className="text-orange-500" />
         </div>
         <div>
-          <h3 className="font-semibold text-[#1F2937] text-sm">Find Your Boarding Place</h3>
-          <p className="text-xs text-[#6B7280]">Search from 1,250+ verified listings</p>
+          <h3 className="font-semibold text-[#1F2937] text-sm">
+            Find Your Boarding Place
+          </h3>
+          <p className="text-xs text-[#6B7280]">
+            Search from 1,250+ verified listings
+          </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Location */}
         <div>
-          <label className="block text-xs font-medium text-[#6B7280] mb-1.5">Location / University</label>
+          <label className="block text-xs font-medium text-[#6B7280] mb-1.5">
+            Location / University
+          </label>
           <div className="relative">
-            <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
+            <MapPin
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
+            />
             <input
               type="text"
               name="location"
@@ -90,9 +102,14 @@ export default function SearchBox({ setListings, setLoading, setError }) {
 
         {/* Max Price */}
         <div>
-          <label className="block text-xs font-medium text-[#6B7280] mb-1.5">Max Price (LKR/month)</label>
+          <label className="block text-xs font-medium text-[#6B7280] mb-1.5">
+            Max Price (LKR/month)
+          </label>
           <div className="relative">
-            <DollarSign size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
+            <DollarSign
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]"
+            />
             <input
               type="number"
               name="maxPrice"
@@ -105,46 +122,11 @@ export default function SearchBox({ setListings, setLoading, setError }) {
           </div>
         </div>
 
-        {/* Room Type & Gender */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1.5">Room Type</label>
-            <div className="relative">
-              <Home size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
-              <select
-                name="roomType"
-                value={form.roomType}
-                onChange={handleChange}
-                className="w-full pl-9 pr-3 py-2.5 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-[#1F2937] bg-[#FFFDFB] appearance-none"
-              >
-                {ROOM_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1.5">Gender</label>
-            <div className="relative">
-              <Users size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280]" />
-              <select
-                name="gender"
-                value={form.gender}
-                onChange={handleChange}
-                className="w-full pl-9 pr-3 py-2.5 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-[#1F2937] bg-[#FFFDFB] appearance-none"
-              >
-                {GENDERS.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
         {/* Facilities */}
         <div>
-          <label className="block text-xs font-medium text-[#6B7280] mb-1.5">Facilities</label>
+          <label className="block text-xs font-medium text-[#6B7280] mb-1.5">
+            Facilities
+          </label>
           <div className="flex flex-wrap gap-2">
             {FACILITIES_OPTIONS.map((f) => (
               <button
@@ -153,8 +135,8 @@ export default function SearchBox({ setListings, setLoading, setError }) {
                 onClick={() => toggleFacility(f)}
                 className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
                   form.facilities.includes(f)
-                    ? 'bg-orange-500 text-white border-orange-500'
-                    : 'bg-white text-[#6B7280] border-[#E5E7EB] hover:border-orange-400 hover:text-orange-500'
+                    ? "bg-orange-500 text-white border-orange-500"
+                    : "bg-white text-[#6B7280] border-[#E5E7EB] hover:border-orange-400 hover:text-orange-500"
                 }`}
               >
                 {f}
@@ -178,9 +160,24 @@ export default function SearchBox({ setListings, setLoading, setError }) {
         >
           {searching ? (
             <>
-              <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              <svg
+                className="animate-spin w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
               </svg>
               Searching...
             </>

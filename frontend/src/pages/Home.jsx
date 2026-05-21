@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import Hero from '../components/Hero';
-import FeatureBar from '../components/FeatureBar';
-import ListingsSection from '../components/ListingsSection';
-import StatsSection from '../components/StatsSection';
-import Testimonials from '../components/Testimonials';
-import { getListings } from '../services/api';
+import { useState, useEffect } from "react";
+import Hero from "../components/Hero";
+import FeatureBar from "../components/FeatureBar";
+import ListingsSection from "../components/ListingsSection";
+import StatsSection from "../components/StatsSection";
+import Testimonials from "../components/Testimonials";
+import { getListings } from "../services/api";
 
 export default function Home() {
-  const [listings, setListings] = useState([]);
+  const [listings, setListings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,8 +25,8 @@ export default function Home() {
         }
       } catch {
         if (!cancelled) {
-          // Silently fall back to mock listings shown in ListingsSection
-          setListings([]);
+          // Preserve the mock fallback experience on initial load failure
+          setListings(null);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -34,7 +34,9 @@ export default function Home() {
     };
 
     fetchInitial();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

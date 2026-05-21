@@ -25,7 +25,8 @@ export const loginUser = (data) => api.post("/auth/login", data);
 export const getMe = () => api.get("/auth/me");
 export const updateProfile = (data) => api.put("/auth/profile", data);
 export const changePassword = (data) => api.put("/auth/change-password", data);
-export const updateContactDetails = (data) => api.put("/auth/contact-details", data);
+export const updateContactDetails = (data) =>
+  api.put("/auth/contact-details", data);
 export const uploadProfilePicture = (formData) =>
   api.post("/auth/profile-picture", formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -41,6 +42,7 @@ export const getAIRecommendations = (data) => api.post("/ai/recommend", data);
 // Bookings
 export const createBooking = (data) => api.post("/bookings", data);
 export const getMyBookings = () => api.get("/bookings/my");
+export const payBooking = (id) => api.put(`/bookings/${id}/pay`);
 
 // Reviews
 export const getReviews = (listingId) => api.get(`/reviews/${listingId}`);
@@ -105,6 +107,3 @@ export const adminUpdateContactStatus = (id, status) =>
 export const adminDeleteContact = (id) => api.delete(`/contact/${id}`);
 
 export default api;
-
-
-
